@@ -1,4 +1,6 @@
-﻿namespace Chess
+﻿using System.Diagnostics;
+
+namespace Chess
 {
     public static class GameManager
     {
@@ -17,6 +19,18 @@
 
             CurrentBoard.MakeMove(move);
             CurrentPlayer = CurrentPlayer.GetOpponent();
+
+            if (!CurrentBoard.GetAllLegalMovesFor(CurrentPlayer).Any())
+            {
+                if (CurrentBoard.IsInCheck(CurrentPlayer))
+                {
+                    Debug.WriteLine($"{CurrentPlayer.GetOpponent()} Wins");
+                }
+                else
+                {
+                    Debug.WriteLine("Stalemate");
+                }
+            }
         }
     }
 }

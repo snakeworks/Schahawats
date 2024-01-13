@@ -42,9 +42,20 @@ namespace Chess
             Piece piece = this[position];
             return piece.GetLegalMoves(position, this);
         }
-        public IEnumerable<Move> GetAllLegalMoves()
+        public IEnumerable<Move> GetAllLegalMovesFor(PlayerColor color)
         {
-            throw new NotImplementedException();
+            for (int i = 0; i < MAX_ROW; i++)
+            {
+                for (int j = 0; j < MAX_COLUMN; j++)
+                {
+                    if (_pieces[i, j] == null || _pieces[i, j].Color != color) continue;
+
+                    foreach (var move in _pieces[i, j].GetLegalMoves(new(i, j), this))
+                    {
+                        yield return move;
+                    }
+                }
+            }
         }
 
         public void MakeMove(Move move, bool makeAsDummy = false)
