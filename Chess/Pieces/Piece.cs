@@ -40,7 +40,7 @@
         {
             Color = color;
         }
-        public abstract bool CanMakeMove(Move move);
+        public abstract IEnumerable<Move> GetLegalMoves(Position startPosition, Board board);
 
         public static Piece CreatePieceFromSymbol(char symbol)
         {
@@ -69,6 +69,29 @@
                     break;
             }
             return piece;
+        }
+
+        protected IEnumerable<Position> GetMovePositionsInDirection(Position startPosition, Board board, Position direction)
+        {
+            Position curPos = startPosition + direction;
+            while (curPos.IsValid())
+            {
+                if (board.IsEmpty(curPos))
+                {
+                    yield return curPos;
+                }
+                else
+                {
+                    Piece piece = board[curPos];
+                    if (piece.Color != Color) yield return curPos;
+                }
+
+                curPos += direction;
+            }
+        }        
+        protected IEnumerable<Position> GetMovePositionsInDirection(Position startPosition, Board board, Position[] directions)
+        {
+            return directions.SelectMany(dir => GetMovePositionsInDirection(startPosition, board, directions));
         }
     }
 }

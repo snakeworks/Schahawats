@@ -30,16 +30,19 @@ namespace Chess
             LoadPositionFromFenString(fen);
         }
 
+        public bool IsEmpty(Position position)
+        {
+            return this[position] == null;
+        }
+
         public bool TryMakeMove(Move move)
         {
             if (!move.IsValid()) return false;
 
             Piece pieceToMove = this[move.StartPosition];
-            Piece pieceToTarget = this[move.TargetPosition];
 
             if (pieceToMove == null) return false;
-            if (pieceToTarget != null && pieceToTarget.Color == pieceToMove.Color) return false;
-            if (!pieceToMove.CanMakeMove(move)) return false;
+            //if (pieceToMove.GetLegalMoves(move.StartPosition, this).Contains()) return false;
 
             MakeMove(move);
 
@@ -55,7 +58,7 @@ namespace Chess
             this[move.StartPosition] = null;
             this[move.TargetPosition] = pieceToMove;
 
-            pieceToMove.HasMoved = true;
+            if (pieceToMove != null) pieceToMove.HasMoved = true;
 
             BoardUpdated?.Invoke();
         }

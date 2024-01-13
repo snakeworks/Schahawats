@@ -2,6 +2,15 @@
 {
     public class Position
     {
+        public readonly static Position North = new(-1, 0);
+        public readonly static Position South = new(1, 0);
+        public readonly static Position East = new(0, 1);
+        public readonly static Position West = new(0, -1);
+        public readonly static Position NorthEast = North + East;
+        public readonly static Position NorthWest = North + West;
+        public readonly static Position SouthEast = South + East;
+        public readonly static Position SouthWest = South + West;
+
         public int Row { get; private set; }
         public int Column { get; private set; }
 
@@ -15,6 +24,15 @@
         {
             if (Row >= Board.MAX_ROW || Row < 0 || Column >= Board.MAX_COLUMN || Row < 0) return false;
             return true;
+        }
+
+        public static Position operator +(Position a, Position b)
+        {
+            return new(a.Row + b.Row, a.Column + b.Column);
+        }
+        public static Position operator *(int amount, Position position)
+        {
+            return new Position(position.Row * amount, position.Column * amount);
         }
     }
 }

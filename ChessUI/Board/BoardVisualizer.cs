@@ -15,8 +15,6 @@ namespace ChessUI
         {
             _pieceGrid = grid;
             InitBoard();
-
-            _currentBoard.MakeMove(new Move(new(0, 3), new(3, 2)));
         }
 
         private void InitBoard()
