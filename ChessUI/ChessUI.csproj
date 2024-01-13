@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\Bishop_B.png" />
+    <None Remove="Assets\Bishop_W.png" />
+    <None Remove="Assets\Board.png" />
+    <None Remove="Assets\King_B.png" />
+    <None Remove="Assets\King_W.png" />
+    <None Remove="Assets\Knight_B.png" />
+    <None Remove="Assets\Knight_W.png" />
+    <None Remove="Assets\Pawn_B.png" />
+    <None Remove="Assets\Pawn_W.png" />
+    <None Remove="Assets\Queen_B.png" />
+    <None Remove="Assets\Queen_W.png" />
+    <None Remove="Assets\Rook_B.png" />
+    <None Remove="Assets\Rook_W.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Chess\Chess.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Bishop_B.png" />
+    <Resource Include="Assets\Bishop_W.png" />
+    <Resource Include="Assets\Board.png" />
+    <Resource Include="Assets\King_B.png" />
+    <Resource Include="Assets\King_W.png" />
+    <Resource Include="Assets\Knight_B.png" />
+    <Resource Include="Assets\Knight_W.png" />
+    <Resource Include="Assets\Pawn_B.png" />
+    <Resource Include="Assets\Pawn_W.png" />
+    <Resource Include="Assets\Queen_B.png" />
+    <Resource Include="Assets\Queen_W.png" />
+    <Resource Include="Assets\Rook_B.png" />
+    <Resource Include="Assets\Rook_W.png" />
+  </ItemGroup>
+
+</Project>
