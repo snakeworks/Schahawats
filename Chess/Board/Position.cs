@@ -35,6 +35,14 @@
             return HashCode.Combine(Row, Column);
         }
 
+        public static bool operator ==(Position left, Position right)
+        {
+            return EqualityComparer<Position>.Default.Equals(left, right);
+        }        
+        public static bool operator !=(Position left, Position right)
+        {
+            return !(left == right);
+        }
         public static Position operator +(Position a, Position b)
         {
             return new(a.Row + b.Row, a.Column + b.Column);

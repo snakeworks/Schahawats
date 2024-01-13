@@ -13,14 +13,13 @@ namespace ChessUI
         private readonly Rectangle[,] _highlightedImages = new Rectangle[Board.MAX_ROW, Board.MAX_COLUMN];
         private readonly Dictionary<Position, Move> _cachedSelectedMoves = new();
 
-        private Board _currentBoard;
         private Position _selectedPosition = null;
         
         private readonly UniformGrid _pieceGrid;
         private readonly UniformGrid _highlightGrid;
         private readonly Image _boardImage;
 
-        private readonly SolidColorBrush _highlightColor = new(Color.FromArgb(150, 125, 255, 125));
+        private readonly SolidColorBrush _highlightColor = new(Color.FromArgb(150, 235, 64, 52));
 
         public BoardHandler(Image boardImage, UniformGrid pieceGrid, UniformGrid highlightGrid)
         {
@@ -32,7 +31,7 @@ namespace ChessUI
 
         private void InitBoard()
         {
-            _currentBoard = new(Board.FEN_START);
+            GameManager.StartNewGame();
             for (int i = 0; i < Board.MAX_ROW; i++)
             {
                 for (int j = 0; j < Board.MAX_COLUMN; j++)
@@ -46,7 +45,7 @@ namespace ChessUI
                     _highlightGrid.Children.Add(highlightRect);
                 }
             }
-            _currentBoard.BoardUpdated += DrawBoard;
+            GameManager.CurrentBoard.BoardUpdated += DrawBoard;
             DrawBoard();
         }
 
@@ -56,7 +55,7 @@ namespace ChessUI
             {
                 for (int j = 0; j < Board.MAX_COLUMN; j++)
                 {
-                    _pieceImages[i, j].Source = PieceImages.GetPieceImage(_currentBoard[i, j]);
+                    _pieceImages[i, j].Source = PieceImages.GetPieceImage(GameManager.CurrentBoard[i, j]);
                 }
             }
         }
@@ -70,7 +69,9 @@ namespace ChessUI
 
             if (_selectedPosition == null)
             {
-                var moves = _currentBoard.GetLegalMovesAtPosition(position);
+                if (!GameManager.CurrentBoard.IsEmpty(position) && GameManager.CurrentBoard[position].Color != GameManager.CurrentPlayer) return;
+                
+                var moves = GameManager.CurrentBoard.GetLegalMovesAtPosition(position);
                 if (moves.Any())
                 {
                     _selectedPosition = position;
@@ -83,10 +84,9 @@ namespace ChessUI
                 _selectedPosition = null;
                 HideHighlights();
 
-                
                 if (_cachedSelectedMoves.TryGetValue(position, out var move))
                 {
-                    _currentBoard.MakeMove(move);
+                    GameManager.MakeMove(move);
                 }
             }
         }

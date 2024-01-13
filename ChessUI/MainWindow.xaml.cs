@@ -15,7 +15,8 @@ namespace ChessUI
 
         private void Grid_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            _boardHandler.HandleMouseDown(sender, e);
+            if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+                _boardHandler.HandleMouseDown(sender, e);
         }
     }
 }
