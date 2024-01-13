@@ -22,3 +22,4 @@ D:\VSRepos\Schahawats\ChessUI\obj\Debug\net6.0-windows\refint\ChessUI.dll
 D:\VSRepos\Schahawats\ChessUI\obj\Debug\net6.0-windows\ChessUI.pdb
 D:\VSRepos\Schahawats\ChessUI\obj\Debug\net6.0-windows\ChessUI.genruntimeconfig.cache
 D:\VSRepos\Schahawats\ChessUI\obj\Debug\net6.0-windows\ref\ChessUI.dll
+D:\VSRepos\Schahawats\ChessUI\obj\Debug\net6.0-windows\ChessUI.sourcelink.json

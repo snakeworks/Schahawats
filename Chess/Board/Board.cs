@@ -5,8 +5,6 @@ namespace Chess
 {
     public class Board
     {
-        public static Board Instance { get; private set; }
-
         public event Action BoardUpdated;
 
         private readonly Piece[,] _pieces = new Piece[MAX_ROW, MAX_COLUMN];
@@ -14,18 +12,22 @@ namespace Chess
         public const int MAX_ROW = 8;
         public const int MAX_COLUMN = 8;
 
-        private const string FEN_START = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\r\n";
+        public const string FEN_START = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\r\n";
 
+        public Piece this[int row, int col]
+        {
+            get { return _pieces[row, col]; }
+            private set { _pieces[row, col] = value; }
+        }        
         public Piece this[Position position]
         {
             get { return _pieces[position.Row, position.Column]; }
-            set { _pieces[position.Row, position.Column] = value; }
+            private set { _pieces[position.Row, position.Column] = value; }
         }
 
-        public Board()
+        public Board(string fen)
         {
-            Instance = this;
-            LoadPositionFromFenString(FEN_START);
+            LoadPositionFromFenString(fen);
         }
 
         public bool TryMakeMove(Move move)
@@ -54,19 +56,25 @@ namespace Chess
             this[move.TargetPosition] = pieceToMove;
 
             pieceToMove.HasMoved = true;
+
+            BoardUpdated?.Invoke();
         }
 
         public void PrintBoard()
         {
             for (int i = 0; i < MAX_ROW; i++)
             {
-                string row = "";
+                string outline = "-";
+                string row = "|";
                 for (int j = 0; j < MAX_COLUMN; j++) 
                 {
-                    if (_pieces[i, j] == null) row += 'x';
-                    else row += _pieces[i, j].Symbol;
+                    outline += "----";
+                    if (_pieces[i, j] == null) row += "   |";
+                    else row += $" {_pieces[i, j].Symbol} |";
                 }
+                Debug.WriteLine(outline);
                 Debug.WriteLine(row);
+                if (i == MAX_ROW - 1) Debug.WriteLine(outline);
             }
         }
 
@@ -99,6 +107,8 @@ namespace Chess
                     }
                 }
             }
+
+            BoardUpdated?.Invoke();
         }
         private void ResetBoard()
         {

@@ -5,8 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChessUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="720" Width="1000">
-    <Grid>
-        <Image Source="Assets/Board.png" Width="586" Height="586" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="48,0,0,0"/>
-    </Grid>
+        Title="Schahawats" Height="720" Width="1000"
+        WindowStartupLocation="CenterScreen"
+        Background="#302E2B">
+
+    <Viewbox>
+        <Grid>
+            <Image x:Name="BoardGrid" Source="Assets/Board.png"/>
+            <UniformGrid x:Name="PieceGrid" Rows="8" Columns="8">
+            </UniformGrid>
+        </Grid>
+    </Viewbox>
 </Window>

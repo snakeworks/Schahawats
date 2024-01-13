@@ -9,3 +9,4 @@ D:\VSRepos\Schahawats\Chess\obj\Debug\net6.0\Chess.dll
 D:\VSRepos\Schahawats\Chess\obj\Debug\net6.0\refint\Chess.dll
 D:\VSRepos\Schahawats\Chess\obj\Debug\net6.0\Chess.pdb
 D:\VSRepos\Schahawats\Chess\obj\Debug\net6.0\ref\Chess.dll
+D:\VSRepos\Schahawats\Chess\obj\Debug\net6.0\Chess.sourcelink.json
