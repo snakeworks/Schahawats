@@ -7,6 +7,8 @@ namespace Chess
         public static Board CurrentBoard { get; private set; }
         public static PlayerColor CurrentPlayer { get; private set; }
 
+        public static event Action<MatchResult> MatchEnded;
+
         public static void StartNewGame()
         {
             CurrentBoard = new(Board.FEN_START);
@@ -25,10 +27,12 @@ namespace Chess
                 if (CurrentBoard.IsInCheck(CurrentPlayer))
                 {
                     Debug.WriteLine($"{CurrentPlayer.GetOpponent()} Wins");
+                    MatchEnded?.Invoke(CurrentPlayer.GetOpponent() == PlayerColor.White ? MatchResult.WhiteWins : MatchResult.BlackWins);
                 }
                 else
                 {
                     Debug.WriteLine("Stalemate");
+                    MatchEnded?.Invoke(MatchResult.Stalemate);
                 }
             }
         }
