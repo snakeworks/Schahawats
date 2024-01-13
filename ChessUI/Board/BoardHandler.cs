@@ -69,7 +69,7 @@ namespace ChessUI
 
             if (_selectedPosition == null)
             {
-                if (!GameManager.CurrentBoard.IsEmpty(position) && GameManager.CurrentBoard[position].Color != GameManager.CurrentPlayer) return;
+                if (!GameManager.CurrentBoard.IsSquareEmpty(position) && GameManager.CurrentBoard[position].Color != GameManager.CurrentPlayer) return;
                 
                 var moves = GameManager.CurrentBoard.GetLegalMovesAtPosition(position);
                 if (moves.Any())

@@ -12,7 +12,7 @@
         {
         }
 
-        public override IEnumerable<Move> GetLegalMoves(Position startPosition, Board board)
+        protected override IEnumerable<Move> GetPossibleMoves(Position startPosition, Board board)
         {
             return GetMovePositions(startPosition, board).Select(target => new Move(startPosition, target));
         }
@@ -25,8 +25,17 @@
                 
                 if (!targetPos.IsValid()) continue;
 
-                if (board.IsEmpty(targetPos) || board[targetPos].Color != Color) yield return targetPos;
+                if (board.IsSquareEmpty(targetPos) || board[targetPos].Color != Color) yield return targetPos;
             }
+        }
+
+        public override bool CanCaptureKing(Position startPosition, Board board)
+        {
+            return GetMovePositions(startPosition, board).Any(targetPosition =>
+            {
+                Piece piece = board[targetPosition];
+                return piece != null && piece.Type == PieceType.King;
+            });
         }
     }
 }

@@ -5,6 +5,7 @@ namespace Chess
     public class Board
     {
         public event Action BoardUpdated;
+        public event Action DummyMoveMade;
 
         private readonly Piece[,] _pieces = new Piece[MAX_ROW, MAX_COLUMN];
 
@@ -29,14 +30,14 @@ namespace Chess
             LoadPositionFromFenString(fen);
         }
 
-        public bool IsEmpty(Position position)
+        public bool IsSquareEmpty(Position position)
         {
             return this[position] == null;
         }
 
         public IEnumerable<Move> GetLegalMovesAtPosition(Position position)
         {
-            if (IsEmpty(position)) return Enumerable.Empty<Move>();
+            if (IsSquareEmpty(position)) return Enumerable.Empty<Move>();
 
             Piece piece = this[position];
             return piece.GetLegalMoves(position, this);
@@ -46,18 +47,43 @@ namespace Chess
             throw new NotImplementedException();
         }
 
-        public void MakeMove(Move move)
+        public void MakeMove(Move move, bool makeAsDummy = false)
         {
             if (!move.IsValid()) return;
 
             Piece pieceToMove = this[move.StartPosition];
 
-            this[move.StartPosition] = null;
-            this[move.TargetPosition] = pieceToMove;
+            if (makeAsDummy)
+            {
+                Piece pieceTarget = this[move.TargetPosition];
 
-            if (pieceToMove != null) pieceToMove.HasMoved = true;
+                this[move.StartPosition] = null;
+                this[move.TargetPosition] = pieceToMove;
 
-            BoardUpdated?.Invoke();
+                DummyMoveMade?.Invoke();
+
+                this[move.StartPosition] = pieceToMove;
+                this[move.TargetPosition] = pieceTarget;
+            }
+            else
+            {
+                this[move.StartPosition] = null;
+                this[move.TargetPosition] = pieceToMove;
+                if (pieceToMove != null) pieceToMove.HasMoved = true;
+                BoardUpdated?.Invoke();
+            }
+        }
+        public bool IsInCheck(PlayerColor color)
+        {
+            for (int i = 0; i < MAX_ROW; i++)
+            {
+                for (int j = 0; j < MAX_COLUMN; j++)
+                {
+                    if (_pieces[i, j] == null || _pieces[i, j].Color != color.GetOpponent()) continue;
+                    if (_pieces[i, j].CanCaptureKing(new(i, j), this)) return true;
+                }
+            }
+            return false;
         }
 
         public void PrintBoard()

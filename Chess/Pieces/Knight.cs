@@ -6,7 +6,7 @@
         {
         }
 
-        public override IEnumerable<Move> GetLegalMoves(Position startPosition, Board board)
+        protected override IEnumerable<Move> GetPossibleMoves(Position startPosition, Board board)
         {
             return GetMovePositions(startPosition, board).Select(target => new Move(startPosition, target));
         }
@@ -23,8 +23,8 @@
                     Position pos1 = startPosition + 2 * vDir + hDir;
                     Position pos2 = startPosition + 2 * hDir + vDir;
 
-                    if (pos1.IsValid() && (board.IsEmpty(pos1) || board[pos1].Color != Color)) yield return pos1;
-                    if (pos2.IsValid() && (board.IsEmpty(pos2) || board[pos2].Color != Color)) yield return pos2;
+                    if (pos1.IsValid() && (board.IsSquareEmpty(pos1) || board[pos1].Color != Color)) yield return pos1;
+                    if (pos2.IsValid() && (board.IsSquareEmpty(pos2) || board[pos2].Color != Color)) yield return pos2;
                 }
             }
         }

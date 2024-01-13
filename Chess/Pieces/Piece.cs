@@ -1,4 +1,7 @@
-﻿namespace Chess
+﻿using System.Collections;
+using System.Diagnostics;
+
+namespace Chess
 {
     public abstract class Piece
     {
@@ -40,7 +43,36 @@
         {
             Color = color;
         }
-        public abstract IEnumerable<Move> GetLegalMoves(Position startPosition, Board board);
+        public IEnumerable<Move> GetLegalMoves(Position startPosition, Board board)
+        {
+            bool IsLegalAfterDummyMove(Move move)
+            {
+                bool legal = true;
+                board.DummyMoveMade += OnMakeDummyMove;
+                board.MakeMove(move, true);
+
+                void OnMakeDummyMove()
+                {
+                    if (board.IsInCheck(Color))
+                    {
+                        legal = false;
+                    }
+                }
+                return legal;
+            }
+            return GetPossibleMoves(startPosition, board).Where(move => IsLegalAfterDummyMove(move));
+        }
+
+        protected abstract IEnumerable<Move> GetPossibleMoves(Position startPosition, Board board);
+
+        public virtual bool CanCaptureKing(Position startPosition, Board board)
+        {
+            return GetPossibleMoves(startPosition, board).Any(move =>
+            {
+                Piece piece = board[move.TargetPosition];
+                return piece != null && piece.Type == PieceType.King;
+            });
+        }
 
         public static Piece CreatePieceFromSymbol(char symbol)
         {
@@ -80,7 +112,7 @@
 
                 if (!curPos.IsValid()) yield break;
 
-                if (board.IsEmpty(curPos))
+                if (board.IsSquareEmpty(curPos))
                 {
                     yield return curPos;
                     continue;

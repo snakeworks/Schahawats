@@ -12,7 +12,7 @@
         {
         }
 
-        public override IEnumerable<Move> GetLegalMoves(Position startPosition, Board board)
+        protected override IEnumerable<Move> GetPossibleMoves(Position startPosition, Board board)
         {
             return GetMovePositionsInDirection(startPosition, board, _moveDirections).Select(target => new Move(startPosition, target));
         }

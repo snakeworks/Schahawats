@@ -10,18 +10,18 @@
             else _forward = Position.South;
         }
 
-        public override IEnumerable<Move> GetLegalMoves(Position startPosition, Board board)
+        protected override IEnumerable<Move> GetPossibleMoves(Position startPosition, Board board)
         {
             return GetForwardMoves(startPosition, board).Concat(GetDiagonalMoves(startPosition, board));
         }
 
         private bool CanMoveTo(Position position, Board board)
         {
-            return position.IsValid() && board.IsEmpty(position);
+            return position.IsValid() && board.IsSquareEmpty(position);
         }
         private bool CanCaptureAt(Position position, Board board) 
         {
-            if (!position.IsValid() || board.IsEmpty(position)) return false;
+            if (!position.IsValid() || board.IsSquareEmpty(position)) return false;
             return board[position].Color != Color;
         }
 
@@ -45,6 +45,15 @@
 
             if (CanCaptureAt(targetWest, board)) yield return new Move(startPosition, targetWest);
             if (CanCaptureAt(targetEast, board)) yield return new Move(startPosition, targetEast);
+        }
+
+        public override bool CanCaptureKing(Position startPosition, Board board)
+        {
+            return GetDiagonalMoves(startPosition, board).Any(move =>
+            {
+                Piece piece = board[move.TargetPosition];
+                return piece != null && piece.Type == PieceType.King;
+            });
         }
     }
 }
