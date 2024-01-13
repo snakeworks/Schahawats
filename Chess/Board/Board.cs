@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Net.NetworkInformation;
+﻿using System.Diagnostics;
 
 namespace Chess
 {
@@ -19,7 +17,7 @@ namespace Chess
         {
             get { return _pieces[row, col]; }
             private set { _pieces[row, col] = value; }
-        }        
+        }
         public Piece this[Position position]
         {
             get { return _pieces[position.Row, position.Column]; }
@@ -46,20 +44,6 @@ namespace Chess
         public IEnumerable<Move> GetAllLegalMoves()
         {
             throw new NotImplementedException();
-        }
-
-        public bool TryMakeMove(Move move)
-        {
-            if (!move.IsValid()) return false;
-
-            Piece pieceToMove = this[move.StartPosition];
-
-            if (pieceToMove == null) return false;
-            //if (pieceToMove.GetLegalMoves(move.StartPosition, this).Contains()) return false;
-
-            MakeMove(move);
-
-            return true;
         }
 
         public void MakeMove(Move move)

@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Chess
+﻿namespace Chess
 {
     public abstract class Piece
     {
