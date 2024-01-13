@@ -1,4 +1,6 @@
-﻿namespace Chess
+﻿using System.Diagnostics;
+
+namespace Chess
 {
     public abstract class Piece
     {
@@ -73,25 +75,32 @@
 
         protected IEnumerable<Position> GetMovePositionsInDirection(Position startPosition, Board board, Position direction)
         {
-            Position curPos = startPosition + direction;
-            while (curPos.IsValid())
+            Position curPos = startPosition;
+            while (true)
             {
+                curPos += direction;
+
+                if (!curPos.IsValid()) yield break;
+
                 if (board.IsEmpty(curPos))
                 {
                     yield return curPos;
-                }
-                else
-                {
-                    Piece piece = board[curPos];
-                    if (piece.Color != Color) yield return curPos;
+                    continue;
                 }
 
-                curPos += direction;
+                Piece piece = board[curPos];
+
+                if (piece.Color != Color)
+                {
+                    yield return curPos;
+                }
+
+                yield break;
             }
         }        
         protected IEnumerable<Position> GetMovePositionsInDirection(Position startPosition, Board board, Position[] directions)
         {
-            return directions.SelectMany(dir => GetMovePositionsInDirection(startPosition, board, directions));
+            return directions.SelectMany(dir => GetMovePositionsInDirection(startPosition, board, dir));
         }
     }
 }

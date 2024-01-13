@@ -22,8 +22,17 @@
 
         public bool IsValid()
         {
-            if (Row >= Board.MAX_ROW || Row < 0 || Column >= Board.MAX_COLUMN || Row < 0) return false;
+            if (Row >= Board.MAX_ROW || Row < 0 || Column >= Board.MAX_COLUMN || Column < 0) return false;
             return true;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Position position && Row == position.Row && Column == position.Column;
+        }
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Row, Column);
         }
 
         public static Position operator +(Position a, Position b)
@@ -33,6 +42,11 @@
         public static Position operator *(int amount, Position position)
         {
             return new Position(position.Row * amount, position.Column * amount);
+        }
+
+        public override string ToString()
+        {
+            return $"Position: ({Row}, {Column})";
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Net.NetworkInformation;
 
 namespace Chess
 {
@@ -33,6 +34,18 @@ namespace Chess
         public bool IsEmpty(Position position)
         {
             return this[position] == null;
+        }
+
+        public IEnumerable<Move> GetLegalMovesAtPosition(Position position)
+        {
+            if (IsEmpty(position)) return Enumerable.Empty<Move>();
+
+            Piece piece = this[position];
+            return piece.GetLegalMoves(position, this);
+        }
+        public IEnumerable<Move> GetAllLegalMoves()
+        {
+            throw new NotImplementedException();
         }
 
         public bool TryMakeMove(Move move)
