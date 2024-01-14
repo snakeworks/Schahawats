@@ -14,11 +14,24 @@ namespace Chess
 
         public const string FEN_START = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\r\n";
 
-        public List<string> PositionHistory { get; private set; } = new();
-        public int CurrentBoardViewIndex { get; private set; } = -1;
+        public List<BoardRecord> BoardHistory { get; private set; } = new();
 
-        public Piece LastPieceMoved { get; private set; }
-        public Move LastMoveMade { get; private set; }
+        public Piece LastPieceMoved
+        {
+            get
+            {
+                if (BoardHistory.Count <= 0) return null;
+                return BoardHistory[BoardHistory.Count - 1].PieceMoved;
+            }
+        }        
+        public Move LastMovePlayed
+        {
+            get
+            {
+                if (BoardHistory.Count <= 0) return null;
+                return BoardHistory[BoardHistory.Count - 1].MovePlayed;
+            }
+        }
 
         public Piece this[int row, int col]
         {
@@ -43,7 +56,7 @@ namespace Chess
 
         public IEnumerable<Move> GetLegalMovesAtPosition(Position position)
         {
-            if (IsSquareEmpty(position) || !IsViewingLatestPosition()) return Enumerable.Empty<Move>();
+            if (IsSquareEmpty(position)) return Enumerable.Empty<Move>();
 
             Piece piece = this[position];
             return piece.GetLegalMoves(position, this);
@@ -81,7 +94,7 @@ namespace Chess
                 case MoveFlags.EnPassant:
                     this[move.StartPosition] = null;
                     this[move.TargetPosition] = pieceToMove;
-                    this[LastMoveMade.TargetPosition] = null;
+                    this[LastMovePlayed.TargetPosition] = null;
                     break;
                 case MoveFlags.PromoteToQueen:
                     this[move.StartPosition] = null;
@@ -112,7 +125,7 @@ namespace Chess
                 {
                     this[move.StartPosition] = pieceToMove;
                     this[move.TargetPosition] = null;
-                    this[LastMoveMade.TargetPosition] = LastPieceMoved;
+                    this[LastMovePlayed.TargetPosition] = LastPieceMoved;
                 }
                 else
                 {
@@ -124,11 +137,9 @@ namespace Chess
             {
                 if (pieceToMove != null) pieceToMove.HasMoved = true;
 
-                PositionHistory.Add(GetBoardAsFenString());
-                CurrentBoardViewIndex = PositionHistory.Count - 1;
+                BoardRecord record = new(GetBoardAsFenString(), pieceToMove, move);
 
-                LastPieceMoved = pieceToMove;
-                LastMoveMade = move;
+                BoardHistory.Add(record);
 
                 BoardUpdated?.Invoke();
             }
@@ -162,29 +173,6 @@ namespace Chess
                 Debug.WriteLine(row);
                 if (i == MAX_ROW - 1) Debug.WriteLine(outline);
             }
-        }
-        
-        public void DisplayNextPositionInHistory()
-        {
-            if (PositionHistory.Count <= 0) return;
-            
-            CurrentBoardViewIndex++;
-            CurrentBoardViewIndex = Math.Clamp(CurrentBoardViewIndex, 0, PositionHistory.Count-1);
-
-            LoadPositionFromFenString(PositionHistory[CurrentBoardViewIndex]);
-        }
-        public void DisplayPreviousPositionInHistory() 
-        {
-            if (PositionHistory.Count <= 0) return;
-
-            CurrentBoardViewIndex--;
-            CurrentBoardViewIndex = Math.Clamp(CurrentBoardViewIndex, 0, PositionHistory.Count-1);
-
-            LoadPositionFromFenString(PositionHistory[CurrentBoardViewIndex]);
-        }
-        public bool IsViewingLatestPosition()
-        {
-            return CurrentBoardViewIndex == PositionHistory.Count - 1;
         }
 
         public void LoadPositionFromFenString(string fen)

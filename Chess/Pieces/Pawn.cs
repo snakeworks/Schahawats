@@ -29,7 +29,7 @@
             if (!position.IsValid() || board.IsSquareEmpty(position)) return false;
             if (board[position].Color == Color) return false;
 
-            if (board[position] == board.LastPieceMoved && board.LastMoveMade.Flag == MoveFlags.DoublePawnMove)
+            if (board[position] == board.LastPieceMoved && board.LastMovePlayed.Flag == MoveFlags.DoublePawnMove)
             {
                 return true;
             }

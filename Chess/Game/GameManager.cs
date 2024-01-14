@@ -17,7 +17,7 @@ namespace Chess
 
         public static void MakeMove(Move move)
         {
-            if (CurrentBoard[move.StartPosition].Color != CurrentPlayer || !CurrentBoard.IsViewingLatestPosition()) return;
+            if (CurrentBoard[move.StartPosition].Color != CurrentPlayer) return;
 
             CurrentBoard.MakeMove(move);
             CurrentPlayer = CurrentPlayer.GetOpponent();

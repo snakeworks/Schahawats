@@ -21,12 +21,19 @@ namespace ChessUI
         private readonly Image _boardImage;
 
         private readonly SolidColorBrush _highlightColor = new(Color.FromArgb(150, 235, 64, 52));
+        private readonly SolidColorBrush _previousMoveColor = new(Color.FromArgb(150, 252, 186, 3));
+
+        private readonly Board _previewBoard;
+
+        private int _boardViewIndex = 0;
 
         public BoardHandler(Image boardImage, UniformGrid pieceGrid, UniformGrid highlightGrid)
         {
             _boardImage = boardImage;
             _pieceGrid = pieceGrid;
             _highlightGrid = highlightGrid;
+            _previewBoard = new(Board.FEN_START);
+            _previewBoard.BoardUpdated += () => DrawBoard(_previewBoard);
             InitBoard();
         }
 
@@ -46,22 +53,27 @@ namespace ChessUI
                     _highlightGrid.Children.Add(highlightRect);
                 }
             }
-            GameManager.CurrentBoard.BoardUpdated += DrawBoard;
-            DrawBoard();
+            GameManager.CurrentBoard.BoardUpdated += () => DrawBoard(GameManager.CurrentBoard);
+            DrawBoard(GameManager.CurrentBoard);
         }
 
-        private void DrawBoard()
+        private void DrawBoard(Board board)
         {
+            if (board == GameManager.CurrentBoard) _boardViewIndex = GameManager.CurrentBoard.BoardHistory.Count - 1;
+
             for (int i = 0; i < Board.MAX_ROW; i++)
             {
                 for (int j = 0; j < Board.MAX_COLUMN; j++)
                 {
-                    _pieceImages[i, j].Source = PieceImages.GetPieceImage(GameManager.CurrentBoard[i, j]);
+                    _pieceImages[i, j].Source = PieceImages.GetPieceImage(board[i, j]);
                 }
             }
+
+            HideAllHighlights();
+            ShowLastMoveHighlight();
         }
 
-        public void HandleMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        public void HandleMouseDown(object sender, MouseButtonEventArgs e)
         {
             Point point = e.GetPosition(_boardImage);
             Position position = GetPositionFromPoint(point);
@@ -77,13 +89,14 @@ namespace ChessUI
                 {
                     _selectedPosition = position;
                     CacheMoves(moves);
-                    ShowHighlights();
+                    ShowMoveHighlights();
                 }
             }
             else
             {
                 _selectedPosition = null;
-                HideHighlights();
+                HideAllHighlights();
+                ShowLastMoveHighlight();
 
                 if (_cachedSelectedMoves.TryGetValue(position, out var move))
                 {
@@ -95,12 +108,27 @@ namespace ChessUI
         {
             if (e.Key == Key.Left)
             {
-                GameManager.CurrentBoard.DisplayPreviousPositionInHistory();
+                DisplayPreviousBoardInHistory();
             }
             else if (e.Key == Key.Right)
             {
-                GameManager.CurrentBoard.DisplayNextPositionInHistory();
+                DisplayNextBoardInHistory();
             }
+        }
+
+        private void DisplayNextBoardInHistory()
+        {
+            if (GameManager.CurrentBoard.BoardHistory.Count <= 0) return;
+            _boardViewIndex++;
+            _boardViewIndex = Math.Clamp(_boardViewIndex, 0, GameManager.CurrentBoard.BoardHistory.Count - 1);
+            _previewBoard.LoadPositionFromFenString(GameManager.CurrentBoard.BoardHistory[_boardViewIndex].Fen);
+        }
+        private void DisplayPreviousBoardInHistory()
+        {
+            if (GameManager.CurrentBoard.BoardHistory.Count <= 0) return;
+            _boardViewIndex--;
+            _boardViewIndex = Math.Clamp(_boardViewIndex, 0, GameManager.CurrentBoard.BoardHistory.Count - 1);
+            _previewBoard.LoadPositionFromFenString(GameManager.CurrentBoard.BoardHistory[_boardViewIndex].Fen);
         }
 
         private Position GetPositionFromPoint(Point point)
@@ -120,18 +148,32 @@ namespace ChessUI
                 _cachedSelectedMoves[move.TargetPosition] = move;
             }
         }
-        private void ShowHighlights()
+        private void ShowMoveHighlights()
         {
             foreach (var targetPos in _cachedSelectedMoves.Keys)
             {
                 _highlightedImages[targetPos.Row, targetPos.Column].Fill = _highlightColor;
             }
         }
-        private void HideHighlights()
+        private void HideAllHighlights()
         {
-            foreach (var targetPos in _cachedSelectedMoves.Keys)
+            for (int i = 0; i < Board.MAX_ROW; i++)
             {
-                _highlightedImages[targetPos.Row, targetPos.Column].Fill = Brushes.Transparent;
+                for (int j = 0; j < Board.MAX_COLUMN; j++)
+                {
+                    _highlightedImages[i, j].Fill = Brushes.Transparent;
+                }
+            }
+        }
+        private void ShowLastMoveHighlight()
+        {
+            if (GameManager.CurrentBoard.BoardHistory.Count <= 0) return;
+
+            Move lastMove = GameManager.CurrentBoard.BoardHistory[_boardViewIndex].MovePlayed;
+            if (lastMove != null)
+            {
+                _highlightedImages[lastMove.StartPosition.Row, lastMove.StartPosition.Column].Fill = _previousMoveColor;
+                _highlightedImages[lastMove.TargetPosition.Row, lastMove.TargetPosition.Column].Fill = _previousMoveColor;
             }
         }
     }
