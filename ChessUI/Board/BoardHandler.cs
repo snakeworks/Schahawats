@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -88,6 +89,17 @@ namespace ChessUI
                 {
                     GameManager.MakeMove(move);
                 }
+            }
+        }
+        public void HandleKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Left)
+            {
+                GameManager.CurrentBoard.DisplayPreviousPositionInHistory();
+            }
+            else if (e.Key == Key.Right)
+            {
+                GameManager.CurrentBoard.DisplayNextPositionInHistory();
             }
         }
 

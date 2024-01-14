@@ -1,5 +1,5 @@
-﻿using Chess;
-using System.Windows;
+﻿using System.Windows;
+using System.Windows.Input;
 
 namespace ChessUI
 {
@@ -13,10 +13,15 @@ namespace ChessUI
             _boardHandler = new(BoardGrid, PieceGrid, HighlightGrid);
         }
 
-        private void Grid_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+            if (e.LeftButton == MouseButtonState.Pressed)
                 _boardHandler.HandleMouseDown(sender, e);
+        }
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            _boardHandler.HandleKeyDown(sender, e);
         }
     }
 }
