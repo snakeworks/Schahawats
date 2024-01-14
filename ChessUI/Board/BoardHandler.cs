@@ -78,7 +78,7 @@ namespace ChessUI
             Point point = e.GetPosition(_boardImage);
             Position position = GetPositionFromPoint(point);
 
-            if (!position.IsValid()) return;
+            if (!position.IsValid() || !IsViewingCurrentBoard()) return;
 
             if (_selectedPosition == null)
             {
@@ -129,6 +129,10 @@ namespace ChessUI
             _boardViewIndex--;
             _boardViewIndex = Math.Clamp(_boardViewIndex, 0, GameManager.CurrentBoard.BoardHistory.Count - 1);
             _previewBoard.LoadPositionFromFenString(GameManager.CurrentBoard.BoardHistory[_boardViewIndex].Fen);
+        }
+        private bool IsViewingCurrentBoard()
+        {
+            return _boardViewIndex == GameManager.CurrentBoard.BoardHistory.Count - 1;
         }
 
         private Position GetPositionFromPoint(Point point)
