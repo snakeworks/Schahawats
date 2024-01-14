@@ -17,5 +17,10 @@
         {
             return StartPosition.IsValid() && TargetPosition.IsValid();
         }
+
+        public override string ToString()
+        {
+            return $"Start({StartPosition}) Target({TargetPosition}) Flag({Flag})";
+        }
     }
 }

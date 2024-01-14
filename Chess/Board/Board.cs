@@ -17,6 +17,9 @@ namespace Chess
         public List<string> PositionHistory { get; private set; } = new();
         public int CurrentBoardViewIndex { get; private set; } = -1;
 
+        public Piece LastPieceMoved { get; private set; }
+        public Move LastMoveMade { get; private set; }
+
         public Piece this[int row, int col]
         {
             get { return _pieces[row, col]; }
@@ -66,26 +69,67 @@ namespace Chess
             if (!move.IsValid()) return;
 
             Piece pieceToMove = this[move.StartPosition];
+            Piece pieceTarget = this[move.TargetPosition];
+
+            switch (move.Flag)
+            {
+                case MoveFlags.None:
+                case MoveFlags.DoublePawnMove:
+                    this[move.StartPosition] = null;
+                    this[move.TargetPosition] = pieceToMove;
+                    break;
+                case MoveFlags.EnPassant:
+                    this[move.StartPosition] = null;
+                    this[move.TargetPosition] = pieceToMove;
+                    this[LastMoveMade.TargetPosition] = null;
+                    break;
+                case MoveFlags.PromoteToQueen:
+                    this[move.StartPosition] = null;
+                    this[move.TargetPosition] = new Queen(pieceToMove.Color);
+                    break;
+                case MoveFlags.PromoteToRook:
+                    this[move.StartPosition] = null;
+                    this[move.TargetPosition] = new Rook(pieceToMove.Color);
+                    break;
+                case MoveFlags.PromoteToBishop:
+                    this[move.StartPosition] = null;
+                    this[move.TargetPosition] = new Bishop(pieceToMove.Color);
+                    break;
+                case MoveFlags.PromoteToKnight:
+                    this[move.StartPosition] = null;
+                    this[move.TargetPosition] = new Knight(pieceToMove.Color);
+                    break;
+                case MoveFlags.CastleKingSide:
+                    break;
+                case MoveFlags.CastleQueenSide:
+                    break;
+            }
 
             if (makeAsDummy)
             {
-                Piece pieceTarget = this[move.TargetPosition];
-
-                this[move.StartPosition] = null;
-                this[move.TargetPosition] = pieceToMove;
-
                 DummyMoveMade?.Invoke();
-
-                this[move.StartPosition] = pieceToMove;
-                this[move.TargetPosition] = pieceTarget;
+                if (move.Flag == MoveFlags.EnPassant)
+                {
+                    this[move.StartPosition] = pieceToMove;
+                    this[move.TargetPosition] = null;
+                    this[LastMoveMade.TargetPosition] = LastPieceMoved;
+                }
+                else
+                {
+                    this[move.StartPosition] = pieceToMove;
+                    this[move.TargetPosition] = pieceTarget;
+                }
             }
             else
             {
-                this[move.StartPosition] = null;
-                this[move.TargetPosition] = pieceToMove;
                 if (pieceToMove != null) pieceToMove.HasMoved = true;
+
                 PositionHistory.Add(GetBoardAsFenString());
                 CurrentBoardViewIndex = PositionHistory.Count - 1;
+
+                LastPieceMoved = pieceToMove;
+                LastMoveMade = move;
+
                 BoardUpdated?.Invoke();
             }
         }
