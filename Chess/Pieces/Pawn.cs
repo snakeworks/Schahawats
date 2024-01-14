@@ -47,7 +47,7 @@
             if (CanCaptureAt(targetEast, board)) yield return new Move(startPosition, targetEast);
         }
 
-        public override bool CanCaptureKing(Position startPosition, Board board)
+        public override bool IsCheckingKing(Position startPosition, Board board)
         {
             return GetDiagonalMoves(startPosition, board).Any(move =>
             {

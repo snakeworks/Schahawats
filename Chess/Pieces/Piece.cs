@@ -53,6 +53,7 @@ namespace Chess
 
                 void OnMakeDummyMove()
                 {
+                    board.DummyMoveMade -= OnMakeDummyMove;
                     if (board.IsInCheck(Color))
                     {
                         legal = false;
@@ -65,7 +66,7 @@ namespace Chess
 
         protected abstract IEnumerable<Move> GetPossibleMoves(Position startPosition, Board board);
 
-        public virtual bool CanCaptureKing(Position startPosition, Board board)
+        public virtual bool IsCheckingKing(Position startPosition, Board board)
         {
             return GetPossibleMoves(startPosition, board).Any(move =>
             {

@@ -29,7 +29,7 @@
             }
         }
 
-        public override bool CanCaptureKing(Position startPosition, Board board)
+        public override bool IsCheckingKing(Position startPosition, Board board)
         {
             return GetMovePositions(startPosition, board).Any(targetPosition =>
             {

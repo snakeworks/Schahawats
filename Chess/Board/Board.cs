@@ -81,6 +81,7 @@ namespace Chess
                 this[move.StartPosition] = null;
                 this[move.TargetPosition] = pieceToMove;
                 if (pieceToMove != null) pieceToMove.HasMoved = true;
+                Debug.WriteLine(GetBoardAsFenString());
                 BoardUpdated?.Invoke();
             }
         }
@@ -91,7 +92,7 @@ namespace Chess
                 for (int j = 0; j < MAX_COLUMN; j++)
                 {
                     if (_pieces[i, j] == null || _pieces[i, j].Color != color.GetOpponent()) continue;
-                    if (_pieces[i, j].CanCaptureKing(new(i, j), this)) return true;
+                    if (_pieces[i, j].IsCheckingKing(new(i, j), this)) return true;
                 }
             }
             return false;
@@ -146,6 +147,36 @@ namespace Chess
             }
 
             BoardUpdated?.Invoke();
+        }
+        public string GetBoardAsFenString()
+        {
+            string fen = "";
+            for (int i = 0; i < MAX_ROW; i++)
+            {
+                int skipCount = 0;
+                for (int j = 0; j < MAX_COLUMN; j++)
+                {
+                    if (_pieces[i, j] != null)
+                    {
+                        if (skipCount > 0) 
+                        { 
+                            fen += skipCount.ToString();
+                            skipCount = 0;
+                        } 
+                        fen += _pieces[i, j].Symbol;
+                    }
+                    else
+                    {
+                        skipCount++;
+                    }
+                }
+                if (skipCount > 0)
+                {
+                    fen += skipCount.ToString();
+                }
+                if (i < MAX_ROW-1) fen += "/";
+            }
+            return fen;
         }
         private void ResetBoard()
         {
