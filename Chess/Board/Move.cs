@@ -2,8 +2,6 @@
 {
     public class Move
     {
-        public static readonly Move NullMove = new(new(-1, -1), new(-1, -1));
-
         public Position StartPosition { get; private set; }
         public Position TargetPosition { get; private set; }
         public MoveFlags Flag { get; private set; }

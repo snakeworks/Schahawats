@@ -126,7 +126,7 @@ namespace ChessUI
             HideAllHighlights();
             ShowLastMoveHighlight();
 
-            if (move == Move.NullMove) return;
+            if (move == null) return;
 
             if (_cachedMoves.ContainsPromotionMoves())
             {
@@ -222,16 +222,13 @@ namespace ChessUI
 
             Move lastMove = GameManager.CurrentBoard.BoardHistory[_boardViewIndex].MovePlayed;
 
-            if (!lastMove.IsValid()) return;
+            if (lastMove == null || !lastMove.IsValid()) return;
 
             Position startPos = GetPositionBasedOnPerspective(lastMove.StartPosition.Row, lastMove.StartPosition.Column);
             Position targetPos = GetPositionBasedOnPerspective(lastMove.TargetPosition.Row, lastMove.TargetPosition.Column);
 
-            if (lastMove != null)
-            {
-                _highlightedImages[startPos.Row, startPos.Column].Fill = _previousMoveColor;
-                _highlightedImages[targetPos.Row, targetPos.Column].Fill = _previousMoveColor;
-            }
+            _highlightedImages[startPos.Row, startPos.Column].Fill = _previousMoveColor;
+            _highlightedImages[targetPos.Row, targetPos.Column].Fill = _previousMoveColor;
         }
     }
 }

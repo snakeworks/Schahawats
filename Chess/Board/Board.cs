@@ -47,7 +47,7 @@ namespace Chess
         public Board(string fen)
         {
             LoadPositionFromFenString(fen);
-            AddHistoryRecord(fen, null, Move.NullMove);
+            AddHistoryRecord(fen, null, null);
         }
 
         public bool IsSquareEmpty(Position position)

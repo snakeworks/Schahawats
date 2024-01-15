@@ -20,7 +20,7 @@
                     return move;
                 }
             }
-            return Move.NullMove;
+            return null;
         }
         public static Move GetMoveByFlag(this IEnumerable<Move> moves, MoveFlags flag)
         {
@@ -31,7 +31,7 @@
                     return move;
                 }
             }
-            return Move.NullMove;
+            return null;
         }
         public static bool ContainsPromotionMoves(this IEnumerable<Move> moves)
         {
