@@ -53,6 +53,10 @@ namespace Chess
         {
             return this[position] == null;
         }
+        public bool AreSquaresEmpty(IEnumerable<Position> positions)
+        {
+            return positions.All(pos => IsSquareEmpty(pos));
+        }
 
         public IEnumerable<Move> GetLegalMovesAtPosition(Position position)
         {
@@ -84,6 +88,7 @@ namespace Chess
             Piece pieceToMove = this[move.StartPosition];
             Piece pieceTarget = this[move.TargetPosition];
 
+            // TODO: Rewrite
             switch (move.Flag)
             {
                 case MoveFlags.None:
@@ -113,8 +118,16 @@ namespace Chess
                     this[move.TargetPosition] = new Knight(pieceToMove.Color);
                     break;
                 case MoveFlags.CastleKingSide:
+                    this[move.StartPosition] = null;
+                    this[move.TargetPosition] = pieceToMove;
+                    this[move.StartPosition.Row, 5] = this[move.StartPosition.Row, 7];
+                    this[move.StartPosition.Row, 7] = null;
                     break;
                 case MoveFlags.CastleQueenSide:
+                    this[move.StartPosition] = null;
+                    this[move.TargetPosition] = pieceToMove;
+                    this[move.StartPosition.Row, 3] = this[move.StartPosition.Row, 0];
+                    this[move.StartPosition.Row, 0] = null;
                     break;
             }
 
@@ -126,6 +139,20 @@ namespace Chess
                     this[move.StartPosition] = pieceToMove;
                     this[move.TargetPosition] = null;
                     this[LastMovePlayed.TargetPosition] = LastPieceMoved;
+                }
+                else if (move.Flag == MoveFlags.CastleKingSide)
+                {
+                    this[move.StartPosition] = pieceToMove;
+                    this[move.TargetPosition] = null;
+                    this[move.StartPosition.Row, 7] = this[move.StartPosition.Row, 5];
+                    this[move.StartPosition.Row, 5] = null;
+                }
+                else if (move.Flag == MoveFlags.CastleQueenSide)
+                {
+                    this[move.StartPosition] = pieceToMove;
+                    this[move.TargetPosition] = null;
+                    this[move.StartPosition.Row, 0] = this[move.StartPosition.Row, 3];
+                    this[move.StartPosition.Row, 3] = null;
                 }
                 else
                 {

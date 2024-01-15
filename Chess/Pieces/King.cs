@@ -16,6 +16,41 @@
         {
             return GetMovePositions(startPosition, board).Select(target => new Move(startPosition, target));
         }
+        public override IEnumerable<Move> GetLegalMoves(Position startPosition, Board board)
+        {
+            var possibleMoves = GetPossibleMoves(startPosition, board);
+            
+            var eastPosition = new Position(startPosition.Row, 5);
+            var westPosition = new Position(startPosition.Row, 3);
+
+            foreach (var move in possibleMoves)
+            {
+                if (!IsLegalAfterDummyMove(move, board)) continue;
+
+                if (move.TargetPosition == westPosition)
+                {
+                    yield return move;
+                    Move queenSideCastle = GetQueenSideCastleMove(startPosition, board);
+                    if (queenSideCastle != null && IsLegalAfterDummyMove(queenSideCastle, board)) 
+                    {
+                        yield return queenSideCastle;
+                    }
+                }
+                else if (move.TargetPosition == eastPosition)
+                {
+                    yield return move;
+                    Move kingSideCastle = GetKingSideCastleMove(startPosition, board);
+                    if (kingSideCastle != null && IsLegalAfterDummyMove(kingSideCastle, board)) 
+                    {
+                        yield return kingSideCastle;
+                    }
+                }
+                else
+                {
+                    yield return move;
+                }
+            }
+        }
 
         private IEnumerable<Position> GetMovePositions(Position startPosition, Board board)
         {
@@ -27,6 +62,44 @@
 
                 if (board.IsSquareEmpty(targetPos) || board[targetPos].Color != Color) yield return targetPos;
             }
+        }
+        private bool HasRookMoved(Position position, Board board)
+        {
+            return board[position].Type == PieceType.Rook && board[position].HasMoved;
+        }
+        private Move GetKingSideCastleMove(Position startPosition, Board board)
+        {
+            if (HasMoved || board.IsInCheck(Color))
+            {
+                return null;
+            }
+
+            Position rookPositionKingSide = new(startPosition.Row, 7);
+            Position[] positionsBetweenRookKingSide = new Position[] { new(startPosition.Row, 5), new(startPosition.Row, 6) };
+
+            if (!HasRookMoved(rookPositionKingSide, board) && board.AreSquaresEmpty(positionsBetweenRookKingSide))
+            {
+                return new Move(startPosition, new(startPosition.Row, 6), MoveFlags.CastleKingSide);
+            }
+            
+            return null;
+        }
+        private Move GetQueenSideCastleMove(Position startPosition, Board board)
+        {
+            if (HasMoved || board.IsInCheck(Color))
+            {
+                return null;
+            }
+
+            Position rookPositionQueenSide = new(startPosition.Row, 0);
+            Position[] positionsBetweenRookQueenSide = new Position[] { new(startPosition.Row, 3), new(startPosition.Row, 2), new(startPosition.Row, 1) };
+
+            if (!HasRookMoved(rookPositionQueenSide, board) && board.AreSquaresEmpty(positionsBetweenRookQueenSide))
+            {
+                return new Move(startPosition, new(startPosition.Row, 2), MoveFlags.CastleQueenSide);
+            }
+            
+            return null;
         }
 
         public override bool IsCheckingKing(Position startPosition, Board board)

@@ -40,28 +40,29 @@
         {
             Color = color;
         }
-        public IEnumerable<Move> GetLegalMoves(Position startPosition, Board board)
-        {
-            bool IsLegalAfterDummyMove(Move move)
-            {
-                bool legal = true;
-                board.DummyMoveMade += OnMakeDummyMove;
-                board.MakeMove(move, true);
 
-                void OnMakeDummyMove()
-                {
-                    board.DummyMoveMade -= OnMakeDummyMove;
-                    if (board.IsInCheck(Color))
-                    {
-                        legal = false;
-                    }
-                }
-                return legal;
-            }
-            return GetPossibleMoves(startPosition, board).Where(move => IsLegalAfterDummyMove(move));
+        public virtual IEnumerable<Move> GetLegalMoves(Position startPosition, Board board)
+        {
+            return GetPossibleMoves(startPosition, board).Where(move => IsLegalAfterDummyMove(move, board));
         }
 
         protected abstract IEnumerable<Move> GetPossibleMoves(Position startPosition, Board board);
+        protected bool IsLegalAfterDummyMove(Move move, Board board)
+        {
+            bool legal = true;
+            board.DummyMoveMade += OnMakeDummyMove;
+            board.MakeMove(move, true);
+
+            void OnMakeDummyMove()
+            {
+                board.DummyMoveMade -= OnMakeDummyMove;
+                if (board.IsInCheck(Color))
+                {
+                    legal = false;
+                }
+            }
+            return legal;
+        }
 
         public virtual bool IsCheckingKing(Position startPosition, Board board)
         {
@@ -101,7 +102,7 @@
             return piece;
         }
 
-        protected IEnumerable<Position> GetMovePositionsInDirection(Position startPosition, Board board, Position direction)
+        protected IEnumerable<Position> GetMovePositionsInDirection(Position startPosition, Board board, Position direction, bool includeFriendlyPieces = false)
         {
             Position curPos = startPosition;
             while (true)
@@ -122,13 +123,17 @@
                 {
                     yield return curPos;
                 }
+                else
+                {
+                    if (includeFriendlyPieces) yield return curPos;
+                }
 
                 yield break;
             }
-        }        
-        protected IEnumerable<Position> GetMovePositionsInDirection(Position startPosition, Board board, Position[] directions)
+        }
+        protected IEnumerable<Position> GetMovePositionsInDirection(Position startPosition, Board board, Position[] directions, bool includeFriendlyPieces = false)
         {
-            return directions.SelectMany(dir => GetMovePositionsInDirection(startPosition, board, dir));
+            return directions.SelectMany(dir => GetMovePositionsInDirection(startPosition, board, dir, includeFriendlyPieces));
         }
     }
 }
