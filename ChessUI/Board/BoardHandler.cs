@@ -1,5 +1,4 @@
 ﻿using Chess;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -12,6 +11,7 @@ namespace ChessUI
     public class BoardHandler
     {
         private readonly Image[,] _pieceImages = new Image[Board.MAX_ROW, Board.MAX_COLUMN];
+        
         private readonly Rectangle[,] _highlightedImages = new Rectangle[Board.MAX_ROW, Board.MAX_COLUMN];
         private readonly List<Move> _cachedMoves = new();
 
@@ -26,7 +26,17 @@ namespace ChessUI
 
         private readonly Board _previewBoard;
 
+        private PlayerColor _perspective = PlayerColor.White;
         private int _boardViewIndex = 0;
+
+        private Board ActiveBoard
+        {
+            get
+            {
+                if (IsViewingCurrentBoard()) return GameManager.CurrentBoard;
+                else return _previewBoard;
+            }
+        }
 
         public BoardHandler(Image boardImage, UniformGrid pieceGrid, UniformGrid highlightGrid)
         {
@@ -66,10 +76,12 @@ namespace ChessUI
             {
                 for (int j = 0; j < Board.MAX_COLUMN; j++)
                 {
-                    _pieceImages[i, j].Source = PieceImages.GetPieceImage(board[i, j]);
+                    Position pos = GetPositionBasedOnPerspective(i, j);
+                    _pieceImages[pos.Row, pos.Column].Source = PieceImages.GetPieceImage(board[i, j]);
                 }
             }
 
+            DeselectCurrentPosition();
             HideAllHighlights();
             ShowLastMoveHighlight();
         }
@@ -83,37 +95,49 @@ namespace ChessUI
 
             if (_selectedPosition == null)
             {
-                if (!GameManager.CurrentBoard.IsSquareEmpty(position) && GameManager.CurrentBoard[position].Color != GameManager.CurrentPlayer) return;
-                
-                var moves = GameManager.CurrentBoard.GetLegalMovesAtPosition(position);
-                if (moves.Any())
-                {
-                    _selectedPosition = position;
-                    CacheMoves(moves);
-                    ShowMoveHighlights();
-                }
+                SelectPosition(position);
             }
             else
             {
-                _selectedPosition = null;
-
-                Move move = _cachedMoves.GetMoveByTargetPosition(position);
-
-                HideAllHighlights();
-                ShowLastMoveHighlight();
-
-                if (move == Move.NullMove) return;
-
-                if (_cachedMoves.ContainsPromotionMoves())
-                {
-                    GameManager.MakeMove(_cachedMoves.GetMoveByFlag(MoveFlags.PromoteToQueen));
-                }
-                else
-                {
-                    GameManager.MakeMove(move);
-                }
+                DeselectCurrentPosition();
+                TryMakeMove(position);
             }
         }
+        void SelectPosition(Position position)
+        {
+            if (!GameManager.CurrentBoard.IsSquareEmpty(position) && GameManager.CurrentBoard[position].Color != GameManager.CurrentPlayer) return;
+
+            var moves = GameManager.CurrentBoard.GetLegalMovesAtPosition(position);
+            if (moves.Any())
+            {
+                _selectedPosition = position;
+                CacheMoves(moves);
+                ShowMoveHighlights();
+            }
+        }
+        private void DeselectCurrentPosition()
+        {
+            _selectedPosition = null;
+        }
+        private void TryMakeMove(Position position)
+        {
+            Move move = _cachedMoves.GetMoveByTargetPosition(position);
+
+            HideAllHighlights();
+            ShowLastMoveHighlight();
+
+            if (move == Move.NullMove) return;
+
+            if (_cachedMoves.ContainsPromotionMoves())
+            {
+                GameManager.MakeMove(_cachedMoves.GetMoveByFlag(MoveFlags.PromoteToQueen));
+            }
+            else
+            {
+                GameManager.MakeMove(move);
+            }
+        }
+
         public void HandleKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Left)
@@ -124,18 +148,23 @@ namespace ChessUI
             {
                 DisplayNextBoardInHistory();
             }
+            else if (e.Key == Key.F1)
+            {
+                _perspective = _perspective.GetOpponent();
+                DrawBoard(ActiveBoard);
+            }
         }
 
         private void DisplayNextBoardInHistory()
         {
-            if (GameManager.CurrentBoard.BoardHistory.Count <= 0) return;
+            if (!GameManager.CurrentBoard.IsHistoryRecordValid()) return;
             _boardViewIndex++;
             _boardViewIndex = Math.Clamp(_boardViewIndex, 0, GameManager.CurrentBoard.BoardHistory.Count - 1);
             _previewBoard.LoadPositionFromFenString(GameManager.CurrentBoard.BoardHistory[_boardViewIndex].Fen);
         }
         private void DisplayPreviousBoardInHistory()
         {
-            if (GameManager.CurrentBoard.BoardHistory.Count <= 0) return;
+            if (!GameManager.CurrentBoard.IsHistoryRecordValid()) return;
             _boardViewIndex--;
             _boardViewIndex = Math.Clamp(_boardViewIndex, 0, GameManager.CurrentBoard.BoardHistory.Count - 1);
             _previewBoard.LoadPositionFromFenString(GameManager.CurrentBoard.BoardHistory[_boardViewIndex].Fen);
@@ -148,9 +177,16 @@ namespace ChessUI
         private Position GetPositionFromPoint(Point point)
         {
             double squareSize = _boardImage.ActualWidth / Board.MAX_ROW;
+            
             int row = (int)(point.Y / squareSize);
             int col = (int)(point.X / squareSize);
-            return new(row, col);
+            
+            return GetPositionBasedOnPerspective(row, col);
+        }
+        private Position GetPositionBasedOnPerspective(int row, int col)
+        {
+            return new(_perspective == PlayerColor.White ? row : Board.MAX_ROW - 1 - row,
+                       _perspective == PlayerColor.White ? col : Board.MAX_COLUMN - 1 - col);
         }
 
         private void CacheMoves(IEnumerable<Move> moves)
@@ -164,9 +200,10 @@ namespace ChessUI
         }
         private void ShowMoveHighlights()
         {
-            foreach (var targetPos in _cachedMoves)
+            foreach (var move in _cachedMoves)
             {
-                _highlightedImages[targetPos.TargetPosition.Row, targetPos.TargetPosition.Column].Fill = _highlightColor;
+                Position pos = GetPositionBasedOnPerspective(move.TargetPosition.Row, move.TargetPosition.Column);
+                _highlightedImages[pos.Row, pos.Column].Fill = _highlightColor;
             }
         }
         private void HideAllHighlights()
@@ -181,13 +218,19 @@ namespace ChessUI
         }
         private void ShowLastMoveHighlight()
         {
-            if (GameManager.CurrentBoard.BoardHistory.Count <= 0) return;
+            if (!GameManager.CurrentBoard.IsHistoryRecordValid()) return;
 
             Move lastMove = GameManager.CurrentBoard.BoardHistory[_boardViewIndex].MovePlayed;
+
+            if (!lastMove.IsValid()) return;
+
+            Position startPos = GetPositionBasedOnPerspective(lastMove.StartPosition.Row, lastMove.StartPosition.Column);
+            Position targetPos = GetPositionBasedOnPerspective(lastMove.TargetPosition.Row, lastMove.TargetPosition.Column);
+
             if (lastMove != null)
             {
-                _highlightedImages[lastMove.StartPosition.Row, lastMove.StartPosition.Column].Fill = _previousMoveColor;
-                _highlightedImages[lastMove.TargetPosition.Row, lastMove.TargetPosition.Column].Fill = _previousMoveColor;
+                _highlightedImages[startPos.Row, startPos.Column].Fill = _previousMoveColor;
+                _highlightedImages[targetPos.Row, targetPos.Column].Fill = _previousMoveColor;
             }
         }
     }

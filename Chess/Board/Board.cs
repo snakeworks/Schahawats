@@ -47,6 +47,7 @@ namespace Chess
         public Board(string fen)
         {
             LoadPositionFromFenString(fen);
+            AddHistoryRecord(fen, null, Move.NullMove);
         }
 
         public bool IsSquareEmpty(Position position)
@@ -164,9 +165,7 @@ namespace Chess
             {
                 if (pieceToMove != null) pieceToMove.HasMoved = true;
 
-                BoardRecord record = new(GetBoardAsFenString(), pieceToMove, move);
-
-                BoardHistory.Add(record);
+                AddHistoryRecord(GetBoardAsFenString(), pieceToMove, move);
 
                 BoardUpdated?.Invoke();
             }
@@ -182,6 +181,16 @@ namespace Chess
                 }
             }
             return false;
+        }
+
+        public bool IsHistoryRecordValid()
+        {
+            return BoardHistory.Count > 1;
+        }
+        private void AddHistoryRecord(string fen, Piece pieceToMove, Move movePlayed)
+        {
+            BoardRecord record = new(fen, pieceToMove, movePlayed);
+            BoardHistory.Add(record);
         }
 
         public bool IsLastRank(Position position, PlayerColor perspective)
