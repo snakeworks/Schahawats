@@ -102,7 +102,7 @@
             return piece;
         }
 
-        protected IEnumerable<Position> GetMovePositionsInDirection(Position startPosition, Board board, Position direction, bool includeFriendlyPieces = false)
+        protected IEnumerable<Position> GetMovePositionsInDirection(Position startPosition, Board board, Position direction)
         {
             Position curPos = startPosition;
             while (true)
@@ -123,17 +123,13 @@
                 {
                     yield return curPos;
                 }
-                else
-                {
-                    if (includeFriendlyPieces) yield return curPos;
-                }
 
                 yield break;
             }
         }
-        protected IEnumerable<Position> GetMovePositionsInDirection(Position startPosition, Board board, Position[] directions, bool includeFriendlyPieces = false)
+        protected IEnumerable<Position> GetMovePositionsInDirection(Position startPosition, Board board, Position[] directions)
         {
-            return directions.SelectMany(dir => GetMovePositionsInDirection(startPosition, board, dir, includeFriendlyPieces));
+            return directions.SelectMany(dir => GetMovePositionsInDirection(startPosition, board, dir));
         }
     }
 }
