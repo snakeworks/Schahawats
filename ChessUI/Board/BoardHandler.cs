@@ -1,4 +1,5 @@
 ﻿using Chess;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -12,7 +13,7 @@ namespace ChessUI
     {
         private readonly Image[,] _pieceImages = new Image[Board.MAX_ROW, Board.MAX_COLUMN];
         private readonly Rectangle[,] _highlightedImages = new Rectangle[Board.MAX_ROW, Board.MAX_COLUMN];
-        private readonly Dictionary<Position, Move> _cachedSelectedMoves = new();
+        private readonly List<Move> _cachedMoves = new();
 
         private Position _selectedPosition = null;
         
@@ -95,10 +96,19 @@ namespace ChessUI
             else
             {
                 _selectedPosition = null;
+
+                Move move = _cachedMoves.GetMoveByTargetPosition(position);
+
                 HideAllHighlights();
                 ShowLastMoveHighlight();
 
-                if (_cachedSelectedMoves.TryGetValue(position, out var move))
+                if (move == Move.NullMove) return;
+
+                if (_cachedMoves.ContainsPromotionMoves())
+                {
+                    GameManager.MakeMove(_cachedMoves.GetMoveByFlag(MoveFlags.PromoteToQueen));
+                }
+                else
                 {
                     GameManager.MakeMove(move);
                 }
@@ -145,18 +155,18 @@ namespace ChessUI
 
         private void CacheMoves(IEnumerable<Move> moves)
         {
-            _cachedSelectedMoves.Clear();
+            _cachedMoves.Clear();
 
             foreach (var move in moves)
             {
-                _cachedSelectedMoves[move.TargetPosition] = move;
+                _cachedMoves.Add(move);
             }
         }
         private void ShowMoveHighlights()
         {
-            foreach (var targetPos in _cachedSelectedMoves.Keys)
+            foreach (var targetPos in _cachedMoves)
             {
-                _highlightedImages[targetPos.Row, targetPos.Column].Fill = _highlightColor;
+                _highlightedImages[targetPos.TargetPosition.Row, targetPos.TargetPosition.Column].Fill = _highlightColor;
             }
         }
         private void HideAllHighlights()

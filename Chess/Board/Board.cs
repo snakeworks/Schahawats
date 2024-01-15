@@ -184,6 +184,13 @@ namespace Chess
             return false;
         }
 
+        public bool IsLastRank(Position position, PlayerColor perspective)
+        {
+            if (position.Row == 0 && perspective == PlayerColor.White) return true;
+            else if (position.Row == MAX_ROW - 1 && perspective == PlayerColor.Black) return true;
+            return false;
+        }
+
         public void PrintBoard()
         {
             for (int i = 0; i < MAX_ROW; i++)
