@@ -63,9 +63,9 @@
                 if (board.IsSquareEmpty(targetPos) || board[targetPos].Color != Color) yield return targetPos;
             }
         }
-        private bool HasRookMoved(Position position, Board board)
+        private bool CanRookCastle(Position position, Board board)
         {
-            return board[position].Type == PieceType.Rook && board[position].HasMoved;
+            return !board.IsSquareEmpty(position) && board[position].Type == PieceType.Rook && !board[position].HasMoved;
         }
         private Move GetKingSideCastleMove(Position startPosition, Board board)
         {
@@ -77,7 +77,7 @@
             Position rookPositionKingSide = new(startPosition.Row, 7);
             Position[] positionsBetweenRookKingSide = new Position[] { new(startPosition.Row, 5), new(startPosition.Row, 6) };
 
-            if (!HasRookMoved(rookPositionKingSide, board) && board.AreSquaresEmpty(positionsBetweenRookKingSide))
+            if (CanRookCastle(rookPositionKingSide, board) && board.AreSquaresEmpty(positionsBetweenRookKingSide))
             {
                 return new Move(startPosition, new(startPosition.Row, 6), MoveFlags.CastleKingSide);
             }
@@ -94,7 +94,7 @@
             Position rookPositionQueenSide = new(startPosition.Row, 0);
             Position[] positionsBetweenRookQueenSide = new Position[] { new(startPosition.Row, 3), new(startPosition.Row, 2), new(startPosition.Row, 1) };
 
-            if (!HasRookMoved(rookPositionQueenSide, board) && board.AreSquaresEmpty(positionsBetweenRookQueenSide))
+            if (CanRookCastle(rookPositionQueenSide, board) && board.AreSquaresEmpty(positionsBetweenRookQueenSide))
             {
                 return new Move(startPosition, new(startPosition.Row, 2), MoveFlags.CastleQueenSide);
             }
