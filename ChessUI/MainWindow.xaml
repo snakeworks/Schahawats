@@ -10,18 +10,31 @@
         Background="#302E2B"
         PreviewKeyDown="Window_PreviewKeyDown">
 
-    <Viewbox>
-        <Grid
-            MouseDown="Grid_MouseDown">
-            <Image x:Name="BoardGrid" Source="Assets/Board.png"/>
+    <Grid MouseDown="Grid_MouseDown">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
 
-            <UniformGrid x:Name="HighlightGrid" Rows="8" Columns="8" 
-                         RenderOptions.BitmapScalingMode="HighQuality">
-            </UniformGrid>
+        <!--Column 0-->
+        <Image x:Name="BoardGrid" Source="Assets/Board.png" Grid.Column="0"/>
+        <UniformGrid x:Name="HighlightGrid" Rows="8" Columns="8" 
+                     RenderOptions.BitmapScalingMode="HighQuality"
+                     Grid.Column="0">
+        </UniformGrid>
+        <UniformGrid x:Name="PieceGrid" Rows="8" Columns="8"
+                     RenderOptions.BitmapScalingMode="HighQuality"
+                     Grid.Column="0">
+        </UniformGrid>
 
-            <UniformGrid x:Name="PieceGrid" Rows="8" Columns="8"
-                         RenderOptions.BitmapScalingMode="HighQuality">
-            </UniformGrid>
-        </Grid>
-    </Viewbox>
+        <!--Column 1-->
+        <StackPanel Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Orientation="Vertical">
+                <Button Content="Button 1"/>
+                <Button Content="Button 2"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+    <!--<Viewbox Margin="0,0,306,36">
+    </Viewbox>*/-->
 </Window>
