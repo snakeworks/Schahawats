@@ -23,5 +23,10 @@ namespace ChessUI
         {
             _boardHandler.HandleKeyDown(sender, e);
         }
+
+        private void Button_Expanded(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

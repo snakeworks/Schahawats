@@ -13,7 +13,7 @@
     <Grid MouseDown="Grid_MouseDown">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <!--Column 0-->
@@ -28,12 +28,17 @@
         </UniformGrid>
 
         <!--Column 1-->
-        <StackPanel Grid.Column="1" Orientation="Horizontal">
-            <StackPanel Orientation="Vertical">
-                <Button Content="Button 1"/>
-                <Button Content="Button 2"/>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" >
+                <Button Content="PLAY"/>
+                <Button Content="PUZZLES"/>
+                <Button Content="ANALYSIS"/>
             </StackPanel>
-        </StackPanel>
+        </Grid>
     </Grid>
     <!--<Viewbox Margin="0,0,306,36">
     </Viewbox>*/-->
