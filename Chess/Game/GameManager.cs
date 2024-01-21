@@ -9,6 +9,8 @@ namespace Chess
         public static Board CurrentBoard { get; private set; }
         public static PlayerColor CurrentPlayer { get; private set; }
 
+        public static event Action GameStarted;
+        public static event Action GameEnded;
         public static event Action<MatchResult> MatchEnded;
 
         public static void StartGame(Gamemode mode)
@@ -26,11 +28,15 @@ namespace Chess
                 case Gamemode.Puzzles:
                     break;
             }
+
+            GameStarted?.Invoke();
         }
         public static void StopGame()
         {
             CurrentGamemode = Gamemode.None;
             CurrentBoard = null;
+
+            GameEnded?.Invoke();
         }
 
         public static void MakeMove(Move move)
@@ -52,6 +58,8 @@ namespace Chess
                     Debug.WriteLine("Stalemate");
                     MatchEnded?.Invoke(MatchResult.Stalemate);
                 }
+
+                StopGame();
             }
         }
     }

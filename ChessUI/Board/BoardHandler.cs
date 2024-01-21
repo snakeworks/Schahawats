@@ -1,4 +1,5 @@
 ﻿using Chess;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -47,30 +48,28 @@ namespace ChessUI
             _moveHistoryGrid = moveHistoryGrid;
             _previewBoard = new(Board.FEN_START);
             _previewBoard.BoardUpdated += () => DrawBoard(_previewBoard);
-        }
+            GameManager.GameStarted += OnGameStarted;
+            
+            for (int i = 0; i < Board.MAX_ROW; i++)
+            {
+                for (int j = 0; j < Board.MAX_COLUMN; j++)
+                {
+                    Image image = new();
+                    _pieceImages[i, j] = image;
+                    _pieceGrid.Children.Add(image);
 
-        public void InitBoard()
+                    Rectangle highlightRect = new();
+                    _highlightedImages[i, j] = highlightRect;
+                    _highlightGrid.Children.Add(highlightRect);
+                }
+            }
+            
+            DrawBoard(_previewBoard);
+        }
+        private void OnGameStarted()
         {
             _moveHistoryGrid.Children.Clear();
             _moveHistoryGrid.RowDefinitions.Clear();
-
-            if (_pieceImages[0, 0] == null)
-            {
-                for (int i = 0; i < Board.MAX_ROW; i++)
-                {
-                    for (int j = 0; j < Board.MAX_COLUMN; j++)
-                    {
-                        Image image = new();
-                        _pieceImages[i, j] = image;
-                        _pieceGrid.Children.Add(image);
-
-                        Rectangle highlightRect = new();
-                        _highlightedImages[i, j] = highlightRect;
-                        _highlightGrid.Children.Add(highlightRect);
-                    }
-                }
-            }
-
             GameManager.CurrentBoard.BoardUpdated += () => DrawBoard(GameManager.CurrentBoard);
             GameManager.CurrentBoard.BoardUpdated += OnMoveMade;
             DrawBoard(GameManager.CurrentBoard);
@@ -113,6 +112,10 @@ namespace ChessUI
             Button button = new()
             {
                 Content = "exf1"
+            };
+            button.Click += (s, e) =>
+            {
+                SetBoardHistoryIndex(historyCount);
             };
             _moveHistoryGrid.Children.Add(button);
 
@@ -195,15 +198,16 @@ namespace ChessUI
 
         private void DisplayNextBoardInHistory()
         {
-            if (!GameManager.CurrentBoard.IsHistoryRecordValid()) return;
-            _boardViewIndex++;
-            _boardViewIndex = Math.Clamp(_boardViewIndex, 0, GameManager.CurrentBoard.BoardHistory.Count - 1);
-            _previewBoard.LoadPositionFromFenString(GameManager.CurrentBoard.BoardHistory[_boardViewIndex].Fen);
+            SetBoardHistoryIndex(_boardViewIndex+1);
         }
         private void DisplayPreviousBoardInHistory()
         {
+            SetBoardHistoryIndex(_boardViewIndex-1);
+        }
+        private void SetBoardHistoryIndex(int index)
+        {
             if (!GameManager.CurrentBoard.IsHistoryRecordValid()) return;
-            _boardViewIndex--;
+            _boardViewIndex = index;
             _boardViewIndex = Math.Clamp(_boardViewIndex, 0, GameManager.CurrentBoard.BoardHistory.Count - 1);
             _previewBoard.LoadPositionFromFenString(GameManager.CurrentBoard.BoardHistory[_boardViewIndex].Fen);
         }
@@ -256,7 +260,7 @@ namespace ChessUI
         }
         private void ShowLastMoveHighlight()
         {
-            if (!GameManager.CurrentBoard.IsHistoryRecordValid()) return;
+            if (GameManager.CurrentBoard == null || !GameManager.CurrentBoard.IsHistoryRecordValid()) return;
 
             Move lastMove = GameManager.CurrentBoard.BoardHistory[_boardViewIndex].MovePlayed;
 

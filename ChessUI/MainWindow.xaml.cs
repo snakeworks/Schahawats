@@ -42,7 +42,6 @@ namespace ChessUI
             EnableUIElement(PlayMenu_MoveHistoryMenu);
 
             GameManager.StartGame(Gamemode.Normal);
-            _boardHandler.InitBoard();
         }
 
         private void OpenTab(TabOptions option)
