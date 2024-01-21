@@ -4,6 +4,33 @@
              xmlns:local="clr-namespace:ChessUI"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <SolidColorBrush x:Key="GenericButtonBorderColor"></SolidColorBrush>
+        <SolidColorBrush x:Key="GenericButtonBackgroundColor"></SolidColorBrush>
+
+        <Style TargetType="Border" x:Key="GenericButtonBorder">
+            <Setter Property="BorderThickness" Value="4"/>
+            <Setter Property="BorderBrush" Value="{StaticResource GenericButtonBorderColor}"/>
+            <Setter Property="Background" Value="{StaticResource GenericButtonBackgroundColor}"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+
+        <Style TargetType="TextBlock" x:Key="TextStyle">
+            <Setter Property="FontFamily" Value="Helvetica"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style TargetType="Button" x:Key="ButtonStyle">
+            <Setter Property="FontFamily" Value="Helvetica"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>        
+        
+        <Style TargetType="Button" x:Key="TabButtonStyle">
+            <Setter Property="FontFamily" Value="Helvetica"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
     </Application.Resources>
 </Application>

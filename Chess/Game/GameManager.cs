@@ -4,15 +4,33 @@ namespace Chess
 {
     public static class GameManager
     {
+        public static Gamemode CurrentGamemode { get; private set; } = Gamemode.None;
+
         public static Board CurrentBoard { get; private set; }
         public static PlayerColor CurrentPlayer { get; private set; }
 
         public static event Action<MatchResult> MatchEnded;
 
-        public static void StartNewGame()
+        public static void StartGame(Gamemode mode)
         {
-            CurrentBoard = new(Board.FEN_START);
-            CurrentPlayer = PlayerColor.White;
+            CurrentGamemode = mode;
+
+            switch (mode)
+            {
+                case Gamemode.Normal:
+                    CurrentBoard = new(Board.FEN_START);
+                    CurrentPlayer = PlayerColor.White;
+                    break;
+                case Gamemode.Analysis:
+                    break;
+                case Gamemode.Puzzles:
+                    break;
+            }
+        }
+        public static void StopGame()
+        {
+            CurrentGamemode = Gamemode.None;
+            CurrentBoard = null;
         }
 
         public static void MakeMove(Move move)

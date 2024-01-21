@@ -20,6 +20,7 @@ namespace ChessUI
         private readonly UniformGrid _pieceGrid;
         private readonly UniformGrid _highlightGrid;
         private readonly Image _boardImage;
+        private readonly Grid _moveHistoryGrid;
 
         private readonly SolidColorBrush _highlightColor = new(Color.FromArgb(150, 235, 64, 52));
         private readonly SolidColorBrush _previousMoveColor = new(Color.FromArgb(150, 252, 186, 3));
@@ -38,33 +39,40 @@ namespace ChessUI
             }
         }
 
-        public BoardHandler(Image boardImage, UniformGrid pieceGrid, UniformGrid highlightGrid)
+        public BoardHandler(Image boardImage, UniformGrid pieceGrid, UniformGrid highlightGrid, Grid moveHistoryGrid)
         {
             _boardImage = boardImage;
             _pieceGrid = pieceGrid;
             _highlightGrid = highlightGrid;
+            _moveHistoryGrid = moveHistoryGrid;
             _previewBoard = new(Board.FEN_START);
             _previewBoard.BoardUpdated += () => DrawBoard(_previewBoard);
-            InitBoard();
         }
 
-        private void InitBoard()
+        public void InitBoard()
         {
-            GameManager.StartNewGame();
-            for (int i = 0; i < Board.MAX_ROW; i++)
-            {
-                for (int j = 0; j < Board.MAX_COLUMN; j++)
-                {
-                    Image image = new();
-                    _pieceImages[i, j] = image;
-                    _pieceGrid.Children.Add(image);
+            _moveHistoryGrid.Children.Clear();
+            _moveHistoryGrid.RowDefinitions.Clear();
 
-                    Rectangle highlightRect = new();
-                    _highlightedImages[i, j] = highlightRect;
-                    _highlightGrid.Children.Add(highlightRect);
+            if (_pieceImages[0, 0] == null)
+            {
+                for (int i = 0; i < Board.MAX_ROW; i++)
+                {
+                    for (int j = 0; j < Board.MAX_COLUMN; j++)
+                    {
+                        Image image = new();
+                        _pieceImages[i, j] = image;
+                        _pieceGrid.Children.Add(image);
+
+                        Rectangle highlightRect = new();
+                        _highlightedImages[i, j] = highlightRect;
+                        _highlightGrid.Children.Add(highlightRect);
+                    }
                 }
             }
+
             GameManager.CurrentBoard.BoardUpdated += () => DrawBoard(GameManager.CurrentBoard);
+            GameManager.CurrentBoard.BoardUpdated += OnMoveMade;
             DrawBoard(GameManager.CurrentBoard);
         }
 
@@ -85,9 +93,37 @@ namespace ChessUI
             HideAllHighlights();
             ShowLastMoveHighlight();
         }
+        private void OnMoveMade()
+        {
+            int historyCount = GameManager.CurrentBoard.BoardHistory.Count - 1;
+
+            int column = historyCount % 2 == 0 ? 1 : 0;
+
+            if (historyCount % 2 != 0)
+            {
+                RowDefinition definition = new()
+                {
+                    Height = new GridLength(1, GridUnitType.Auto)
+                };
+                _moveHistoryGrid.RowDefinitions.Add(definition);
+            }
+
+            int row = _moveHistoryGrid.RowDefinitions.Count-1;
+
+            Button button = new()
+            {
+                Content = "exf1"
+            };
+            _moveHistoryGrid.Children.Add(button);
+
+            Grid.SetRow(button, row);
+            Grid.SetColumn(button, column);
+        }
 
         public void HandleMouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (GameManager.CurrentBoard == null) return;
+
             Point point = e.GetPosition(_boardImage);
             Position position = GetPositionFromPoint(point);
 
@@ -140,6 +176,8 @@ namespace ChessUI
 
         public void HandleKeyDown(object sender, KeyEventArgs e)
         {
+            if (GameManager.CurrentBoard == null) return;
+
             if (e.Key == Key.Left)
             {
                 DisplayPreviousBoardInHistory();
