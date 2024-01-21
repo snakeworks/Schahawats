@@ -50,12 +50,10 @@ namespace Chess
             {
                 if (CurrentBoard.IsInCheck(CurrentPlayer))
                 {
-                    Debug.WriteLine($"{CurrentPlayer.GetOpponent()} Wins");
                     MatchEnded?.Invoke(CurrentPlayer.GetOpponent() == PlayerColor.White ? MatchResult.WhiteWins : MatchResult.BlackWins);
                 }
                 else
                 {
-                    Debug.WriteLine("Stalemate");
                     MatchEnded?.Invoke(MatchResult.Stalemate);
                 }
 

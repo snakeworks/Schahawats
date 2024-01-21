@@ -111,7 +111,8 @@ namespace ChessUI
 
             Button button = new()
             {
-                Content = "exf1"
+                Focusable = false,
+                Content = GameManager.CurrentBoard.BoardHistory[historyCount].Pgn
             };
             button.Click += (s, e) =>
             {

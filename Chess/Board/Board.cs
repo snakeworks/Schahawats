@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Drawing;
 
 namespace Chess
 {
@@ -47,7 +48,7 @@ namespace Chess
         public Board(string fen)
         {
             LoadPositionFromFenString(fen);
-            AddHistoryRecord(fen, null, null);
+            AddHistoryRecord(fen, null, null, null);
         }
 
         public bool IsSquareEmpty(Position position)
@@ -82,6 +83,7 @@ namespace Chess
             }
         }
 
+        // TODO: Rewrite
         public void MakeMove(Move move, bool makeAsDummy = false)
         {
             if (!move.IsValid()) return;
@@ -89,7 +91,13 @@ namespace Chess
             Piece pieceToMove = this[move.StartPosition];
             Piece pieceTarget = this[move.TargetPosition];
 
-            // TODO: Rewrite
+            // Hack
+            string pgn = "";
+            if (!makeAsDummy)
+            { 
+                pgn = GetMoveAsPgnString(move, pieceToMove, pieceTarget, IsInCheck(pieceToMove.Color.GetOpponent()), IsInCheckmate(pieceToMove.Color.GetOpponent()));
+            }
+
             switch (move.Flag)
             {
                 case MoveFlags.None:
@@ -165,7 +173,8 @@ namespace Chess
             {
                 if (pieceToMove != null) pieceToMove.HasMoved = true;
 
-                AddHistoryRecord(GetBoardAsFenString(), pieceToMove, move);
+                string fen = GetBoardAsFenString();
+                AddHistoryRecord(fen, pgn, pieceToMove, move);
 
                 BoardUpdated?.Invoke();
             }
@@ -182,14 +191,18 @@ namespace Chess
             }
             return false;
         }
+        public bool IsInCheckmate(PlayerColor color)
+        {
+            return !GetAllLegalMovesFor(color).Any() && IsInCheck(color);
+        }
 
         public bool IsHistoryRecordValid()
         {
             return BoardHistory.Count > 1;
         }
-        private void AddHistoryRecord(string fen, Piece pieceToMove, Move movePlayed)
+        private void AddHistoryRecord(string fen, string pgn, Piece pieceToMove, Move movePlayed)
         {
-            BoardRecord record = new(fen, pieceToMove, movePlayed);
+            BoardRecord record = new(fen, pgn, pieceToMove, movePlayed);
             BoardHistory.Add(record);
         }
 
@@ -279,6 +292,78 @@ namespace Chess
                 if (i < MAX_ROW-1) fen += "/";
             }
             return fen;
+        }
+        public string GetMoveAsPgnString(Move moveMade, Piece pieceMoved, Piece pieceTargeted, bool isCheck, bool isMate)
+        {
+            string pgn = "";
+
+            Dictionary<int, char> fileSymbols = new()
+            {
+                {0, 'a'},
+                {1, 'b'},
+                {2, 'c'},
+                {3, 'd'},
+                {4, 'e'},
+                {5, 'f'},
+                {6, 'g'},
+                {7, 'h'}
+            };
+
+            if (moveMade.Flag == MoveFlags.CastleKingSide)
+            {
+                pgn += "O-O";
+            }
+            else if (moveMade.Flag == MoveFlags.CastleQueenSide)
+            {
+                pgn += "O-O-O";
+            }
+            else
+            {
+                char startFile = fileSymbols[moveMade.StartPosition.Column];
+                char targetFile = fileSymbols[moveMade.TargetPosition.Column];
+                int startRank = (MAX_ROW - 1 - moveMade.StartPosition.Row)+1;
+                int targetRank = (MAX_ROW - 1 - moveMade.TargetPosition.Row)+1;
+
+                if (pieceMoved.Type != PieceType.Pawn)
+                {
+                    pgn += char.ToUpper(pieceMoved.Symbol);
+                    for (int i = 0; i < MAX_ROW; i++)
+                    {
+                        for (int j = 0; j < MAX_COLUMN; j++)
+                        {
+                            if (_pieces[i, j] == null) continue;
+                            if (_pieces[i, j].Color == pieceMoved.Color && _pieces[i, j].Type == pieceMoved.Type && _pieces[i, j] != pieceMoved)
+                            {
+                                if (_pieces[i, j].GetLegalMoves(new(i, j), this).GetMoveByTargetPosition(moveMade.TargetPosition) != null)
+                                {
+                                    if (i == moveMade.TargetPosition.Row || j == moveMade.TargetPosition.Column)
+                                    {
+                                        if (i == moveMade.TargetPosition.Row) pgn += startFile;
+                                        if (j == moveMade.TargetPosition.Column) pgn += startRank;
+                                    }
+                                    else
+                                    {
+                                        pgn += startFile;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (pieceTargeted != null)
+                {
+                    pgn += startFile;
+                }
+
+                if (pieceTargeted != null) pgn += 'x';
+
+                pgn += $"{targetFile}{targetRank}";
+            }
+
+            if (isMate) pgn += '#';
+            else if (isCheck) pgn += '+';
+
+            return pgn;
         }
         private void ResetBoard()
         {
