@@ -83,7 +83,6 @@ namespace Chess
             }
         }
 
-        // TODO: Rewrite
         public void MakeMove(Move move, bool makeAsDummy = false)
         {
             if (!move.IsValid()) return;
@@ -91,11 +90,21 @@ namespace Chess
             Piece pieceToMove = this[move.StartPosition];
             Piece pieceTarget = this[move.TargetPosition];
 
-            // Hack
+            // HACK HACK HACK
             string pgn = "";
             if (!makeAsDummy)
-            { 
-                pgn = GetMoveAsPgnString(move, pieceToMove, pieceTarget, IsInCheck(pieceToMove.Color.GetOpponent()), IsInCheckmate(pieceToMove.Color.GetOpponent()));
+            {
+                bool isCheck = false;
+                bool isMate = false;
+                DummyMoveMade += OnDummyMoveMade;
+                void OnDummyMoveMade()
+                {
+                    DummyMoveMade -= OnDummyMoveMade;
+                    isCheck = IsInCheck(pieceToMove.Color.GetOpponent());
+                    isMate = IsInCheckmate(pieceToMove.Color.GetOpponent());
+                }
+                MakeMove(move, true);
+                pgn = GetMoveAsPgnString(move, pieceToMove, pieceTarget, isCheck, isMate);
             }
 
             switch (move.Flag)
@@ -293,6 +302,8 @@ namespace Chess
             }
             return fen;
         }
+            
+        // i hate this :(
         public string GetMoveAsPgnString(Move moveMade, Piece pieceMoved, Piece pieceTargeted, bool isCheck, bool isMate)
         {
             string pgn = "";

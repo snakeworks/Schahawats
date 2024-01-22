@@ -57,6 +57,7 @@
                         <StackPanel>
                             <Grid x:Name="MoveHistoryGrid">
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="40"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>

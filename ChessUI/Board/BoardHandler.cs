@@ -1,5 +1,4 @@
 ﻿using Chess;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -31,11 +30,13 @@ namespace ChessUI
         private PlayerColor _perspective = PlayerColor.White;
         private int _boardViewIndex = 0;
 
+        private List<BoardRecord> _moveHistory;
+
         private Board ActiveBoard
         {
             get
             {
-                if (IsViewingCurrentBoard()) return GameManager.CurrentBoard;
+                if (IsViewingCurrentBoard() && GameManager.CurrentBoard != null) return GameManager.CurrentBoard;
                 else return _previewBoard;
             }
         }
@@ -72,12 +73,13 @@ namespace ChessUI
             _moveHistoryGrid.RowDefinitions.Clear();
             GameManager.CurrentBoard.BoardUpdated += () => DrawBoard(GameManager.CurrentBoard);
             GameManager.CurrentBoard.BoardUpdated += OnMoveMade;
+            _moveHistory = GameManager.CurrentBoard.BoardHistory;
             DrawBoard(GameManager.CurrentBoard);
         }
 
         private void DrawBoard(Board board)
         {
-            if (board == GameManager.CurrentBoard) _boardViewIndex = GameManager.CurrentBoard.BoardHistory.Count - 1;
+            if (board == GameManager.CurrentBoard) _boardViewIndex = _moveHistory.Count - 1;
 
             for (int i = 0; i < Board.MAX_ROW; i++)
             {
@@ -94,9 +96,11 @@ namespace ChessUI
         }
         private void OnMoveMade()
         {
-            int historyCount = GameManager.CurrentBoard.BoardHistory.Count - 1;
+            _moveHistory = GameManager.CurrentBoard.BoardHistory;
 
-            int column = historyCount % 2 == 0 ? 1 : 0;
+            int historyCount = _moveHistory.Count - 1;
+
+            int column = historyCount % 2 == 0 ? 2 : 1;
 
             if (historyCount % 2 != 0)
             {
@@ -105,14 +109,20 @@ namespace ChessUI
                     Height = new GridLength(1, GridUnitType.Auto)
                 };
                 _moveHistoryGrid.RowDefinitions.Add(definition);
+                Label label = new()
+                {
+                    Content = $"{_moveHistoryGrid.RowDefinitions.Count}.",
+                    Foreground = new SolidColorBrush(Colors.White)
+                };
+                _moveHistoryGrid.Children.Add(label);
+                Grid.SetColumn(label, 0);
+                Grid.SetRow(label, _moveHistoryGrid.RowDefinitions.Count - 1);
             }
-
-            int row = _moveHistoryGrid.RowDefinitions.Count-1;
 
             Button button = new()
             {
                 Focusable = false,
-                Content = GameManager.CurrentBoard.BoardHistory[historyCount].Pgn
+                Content = _moveHistory[historyCount].Pgn
             };
             button.Click += (s, e) =>
             {
@@ -120,7 +130,7 @@ namespace ChessUI
             };
             _moveHistoryGrid.Children.Add(button);
 
-            Grid.SetRow(button, row);
+            Grid.SetRow(button, _moveHistoryGrid.RowDefinitions.Count - 1);
             Grid.SetColumn(button, column);
         }
 
@@ -180,8 +190,6 @@ namespace ChessUI
 
         public void HandleKeyDown(object sender, KeyEventArgs e)
         {
-            if (GameManager.CurrentBoard == null) return;
-
             if (e.Key == Key.Left)
             {
                 DisplayPreviousBoardInHistory();
@@ -207,14 +215,18 @@ namespace ChessUI
         }
         private void SetBoardHistoryIndex(int index)
         {
-            if (!GameManager.CurrentBoard.IsHistoryRecordValid()) return;
+            if (!IsMoveHistoryValid()) return;
             _boardViewIndex = index;
-            _boardViewIndex = Math.Clamp(_boardViewIndex, 0, GameManager.CurrentBoard.BoardHistory.Count - 1);
-            _previewBoard.LoadPositionFromFenString(GameManager.CurrentBoard.BoardHistory[_boardViewIndex].Fen);
+            _boardViewIndex = Math.Clamp(_boardViewIndex, 0, _moveHistory.Count - 1);
+            _previewBoard.LoadPositionFromFenString(_moveHistory[_boardViewIndex].Fen);
         }
         private bool IsViewingCurrentBoard()
         {
-            return _boardViewIndex == GameManager.CurrentBoard.BoardHistory.Count - 1;
+            return _boardViewIndex == _moveHistory.Count - 1;
+        }
+        private bool IsMoveHistoryValid()
+        {
+            return _moveHistory != null && _moveHistory.Count > 1;
         }
 
         private Position GetPositionFromPoint(Point point)
@@ -261,9 +273,9 @@ namespace ChessUI
         }
         private void ShowLastMoveHighlight()
         {
-            if (GameManager.CurrentBoard == null || !GameManager.CurrentBoard.IsHistoryRecordValid()) return;
+            if (!IsMoveHistoryValid()) return;
 
-            Move lastMove = GameManager.CurrentBoard.BoardHistory[_boardViewIndex].MovePlayed;
+            Move lastMove = _moveHistory[_boardViewIndex].MovePlayed;
 
             if (lastMove == null || !lastMove.IsValid()) return;
 
