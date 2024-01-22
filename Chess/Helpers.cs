@@ -1,4 +1,6 @@
-﻿namespace Chess
+﻿using System.Reflection.Metadata;
+
+namespace Chess
 {
     public static class Helpers
     {
@@ -44,6 +46,27 @@
                 }
             }
             return false;
+        }
+
+        public static string GetBoardHistoryAsPgnExport(this List<BoardRecord> history)
+        {
+            string export = "";
+
+            int realCount = 0;
+            foreach (var record in history)
+            {
+                if (string.IsNullOrEmpty(record.Pgn)) continue;
+                
+                if (realCount % 2 == 0)
+                {
+                    export += $"{realCount + 1}. ";
+                }
+
+                export += $"{record.Pgn} ";
+                realCount++;
+            }
+
+            return export;
         }
     }
 }
