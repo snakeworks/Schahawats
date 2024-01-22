@@ -1,17 +1,18 @@
-﻿using System.Diagnostics;
-
-namespace Chess
+﻿namespace Chess
 {
     public static class GameManager
     {
+
         public static Gamemode CurrentGamemode { get; private set; } = Gamemode.None;
 
         public static Board CurrentBoard { get; private set; }
         public static PlayerColor CurrentPlayer { get; private set; }
 
+        public static string LastPgnString { get; private set; }
+        public static MatchResult LastMatchResult { get; private set; }
+
         public static event Action GameStarted;
         public static event Action GameEnded;
-        public static event Action<MatchResult> MatchEnded;
 
         public static void StartGame(Gamemode mode)
         {
@@ -31,13 +32,6 @@ namespace Chess
 
             GameStarted?.Invoke();
         }
-        public static void StopGame()
-        {
-            CurrentGamemode = Gamemode.None;
-            CurrentBoard = null;
-
-            GameEnded?.Invoke();
-        }
 
         public static void MakeMove(Move move)
         {
@@ -50,15 +44,26 @@ namespace Chess
             {
                 if (CurrentBoard.IsInCheck(CurrentPlayer))
                 {
-                    MatchEnded?.Invoke(CurrentPlayer.GetOpponent() == PlayerColor.White ? MatchResult.WhiteWins : MatchResult.BlackWins);
+                    EndGame(CurrentPlayer.GetOpponent() == PlayerColor.White ? MatchResult.WhiteWins : MatchResult.BlackWins);
                 }
                 else
                 {
-                    MatchEnded?.Invoke(MatchResult.Stalemate);
+                    EndGame(MatchResult.Stalemate);
                 }
-
-                StopGame();
             }
+        }
+
+        public static void EndGame(MatchResult result)
+        {
+            if (CurrentBoard == null) return;
+
+            LastMatchResult = result;
+            LastPgnString = CurrentBoard.BoardHistory.GetBoardHistoryAsPgnExport();
+            
+            GameEnded?.Invoke();
+
+            CurrentGamemode = Gamemode.None;
+            CurrentBoard = null;
         }
     }
 }

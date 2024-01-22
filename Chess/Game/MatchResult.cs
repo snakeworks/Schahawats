@@ -2,6 +2,7 @@
 {
     public enum MatchResult
     {
+        ForcefullyEnded,
         WhiteWins,
         BlackWins,
         Stalemate,

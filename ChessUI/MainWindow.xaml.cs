@@ -1,4 +1,6 @@
 ﻿using Chess;
+using Microsoft.Win32;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -7,23 +9,17 @@ namespace ChessUI
 {
     public partial class MainWindow : Window
     {
-        private UIElement _currentTab;
-        private Button _currentTabButtonSelected;
-        
+        private UIElement _activeMenu;
+
         private BoardHandler _boardHandler;
 
         public MainWindow()
         {
             InitializeComponent();
-            _boardHandler = new(BoardGrid, PieceGrid, HighlightGrid, MoveHistoryGrid);
+            _boardHandler = new(BoardGrid, PieceGrid, HighlightGrid, BoardHistoryGrid);
+            GameManager.GameEnded += OnGameEnded;
 
-            PlayMenu_MoveHistoryMenu.Visibility = Visibility.Collapsed;
-
-            TabPlayButton.Click += (s, e) => OpenTab(TabOptions.Play);
-            TabAnalysisButton.Click += (s, e) => OpenTab(TabOptions.Analysis);
-            TabPuzzlesButton.Click += (s, e) => OpenTab(TabOptions.Puzzles);
-            
-            OpenTab(TabOptions.Play);
+            OpenMenu(MainMenu);
         }
 
         private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
@@ -38,49 +34,55 @@ namespace ChessUI
 
         private void NewGameButton_Clicked(object sender, RoutedEventArgs e)
         {
-            DisableUIElement(PlayMenu_Buttons);
-            EnableUIElement(PlayMenu_MoveHistoryMenu);
-
+            ExportPgnButton.IsEnabled = false;
+            EndGameButton.IsEnabled = true;
             GameManager.StartGame(Gamemode.Normal);
+            OpenMenu(BoardHistoryMenu);
         }
-
-        private void OpenTab(TabOptions option)
+        private void ExportPgnButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_currentTab != null) 
-            { 
-                DisableUIElement(_currentTab);
-                _currentTabButtonSelected.IsEnabled = true;
-            }
-
-            switch (option)
+            SaveFileDialog saveFileDialog = new()
             {
-                case TabOptions.Play:
-                    _currentTabButtonSelected = TabPlayButton;
-                    _currentTab = PlayMenu;
-                    break;
-                case TabOptions.Analysis:
-                    _currentTabButtonSelected = TabAnalysisButton;
-                    _currentTab = AnalysisMenu;
-                    break;
-                case TabOptions.Puzzles:
-                    _currentTabButtonSelected = TabPuzzlesButton;
-                    _currentTab = PuzzlesMenu;
-                    break;
-            }
+                DefaultExt = ".txt",
+                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*"
+            };
 
-            EnableUIElement(_currentTab);
-            _currentTabButtonSelected.IsEnabled = false;
+            bool? result = saveFileDialog.ShowDialog();
+
+            if (result == true)
+            {
+                string path = saveFileDialog.FileName;
+                File.WriteAllText(path, GameManager.LastPgnString);
+            }
+            else
+            {
+                // ...
+            }
+        }
+        private void EndGameButton_Click(object sender, RoutedEventArgs e)
+        {
+            GameManager.EndGame(MatchResult.ForcefullyEnded);
+        }
+        private void BackToMainMenuButton_Click(object sender, RoutedEventArgs e)
+        {
+            GameManager.EndGame(MatchResult.ForcefullyEnded);
+            OpenMenu(MainMenu);
+            _boardHandler.ResetBoard();
+        }
+        private void OnGameEnded()
+        {
+            EndGameButton.IsEnabled = false;
+            ExportPgnButton.IsEnabled = true;
         }
 
-        private void EnableUIElement(UIElement element)
+        private void OpenMenu(UIElement menu)
         {
-            element.Visibility = Visibility.Visible;
-            element.IsEnabled = true;
-        }        
-        private void DisableUIElement(UIElement element)
-        {
-            element.Visibility = Visibility.Collapsed;
-            element.IsEnabled = false;
+            if (menu == null) return;
+
+            if (_activeMenu != null) _activeMenu.Visibility = Visibility.Collapsed;
+
+            _activeMenu = menu;
+            _activeMenu.Visibility = Visibility.Visible;
         }
     }
 }

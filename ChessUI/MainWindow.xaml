@@ -16,7 +16,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!--Column 0-->
+        <!--Column 0 Board-->
         <Image x:Name="BoardGrid" Source="Assets/Board.png" Grid.Column="0"/>
         <UniformGrid x:Name="HighlightGrid" Rows="8" Columns="8" 
                      RenderOptions.BitmapScalingMode="HighQuality"
@@ -29,56 +29,46 @@
 
         <!--Column 1-->
         <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" >
-                <Button x:Name="TabPlayButton" Content="PLAY" Style="{StaticResource TabButtonStyle}"/>
-                <Button x:Name="TabAnalysisButton" Content="ANALYSIS" Style="{StaticResource TabButtonStyle}"/>
-                <Button x:Name="TabPuzzlesButton" Content="PUZZLES" Style="{StaticResource TabButtonStyle}"/>
+            <!--Main Menu-->
+            <StackPanel Visibility="Collapsed" x:Name="MainMenu">
+                <Button Content="NEW GAME" Click="NewGameButton_Clicked"/>
+                <Button Content="IMPORT PGN"/>
             </StackPanel>
 
-            <!--PLAY MENU-->
-            <Grid x:Name="PlayMenu" Grid.Row="1">
-                <StackPanel x:Name="PlayMenu_Buttons">
-                    <Button x:Name="NewGameButton" Content="New Game" Style="{StaticResource ButtonStyle}" Click="NewGameButton_Clicked"/>
-                </StackPanel>
+            <!--Board History Menu-->
+            <Grid Visibility="Collapsed" x:Name="BoardHistoryMenu" Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                <Grid x:Name="PlayMenu_MoveHistoryMenu">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="BackToMainMenuButton" Content="BACK" Click="BackToMainMenuButton_Click"/>
                     <TextBlock Foreground="White" Grid.Row="0">
                         MOVE HISTORY
                     </TextBlock>
-                    <ScrollViewer Grid.Row="1">
-                        <StackPanel>
-                            <Grid x:Name="MoveHistoryGrid">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="40"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                            </Grid>
-                        </StackPanel>
-                    </ScrollViewer>
-                </Grid>
+                </StackPanel>
+                
+                <ScrollViewer Grid.Row="1">
+                    <StackPanel>
+                        <Grid x:Name="BoardHistoryGrid">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal">
+                    <Button Content="◀" Width="30"/>
+                    <Button Content="▶" Width="30"/>
+                    <Button x:Name="EndGameButton" Content="END GAME" Click="EndGameButton_Click"/>
+                    <Button x:Name="ExportPgnButton" Content="EXPORT PGN" IsEnabled="False" Click="ExportPgnButton_Click"/>
+                </StackPanel>
             </Grid>
-
-            <!--ANALYSIS MENU-->
-            <Grid x:Name="AnalysisMenu" Grid.Row="1">
-
-            </Grid>
-
-            <!--PUZZLES MENU-->
-            <Grid x:Name="PuzzlesMenu" Grid.Row="1">
-
-            </Grid>
-
         </Grid>
     </Grid>
-    <!--<Viewbox Margin="0,0,306,36">
-    </Viewbox>*/-->
 </Window>

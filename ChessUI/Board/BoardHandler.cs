@@ -67,10 +67,18 @@ namespace ChessUI
             
             DrawBoard(_previewBoard);
         }
-        private void OnGameStarted()
+        public void ResetBoard()
         {
             _moveHistoryGrid.Children.Clear();
             _moveHistoryGrid.RowDefinitions.Clear();
+            _moveHistory?.Clear();
+            _previewBoard.LoadPositionFromFenString(Board.FEN_START);
+            DrawBoard(_previewBoard);
+        }
+
+        private void OnGameStarted()
+        {
+            ResetBoard();
             GameManager.CurrentBoard.BoardUpdated += () => DrawBoard(GameManager.CurrentBoard);
             GameManager.CurrentBoard.BoardUpdated += OnMoveMade;
             _moveHistory = GameManager.CurrentBoard.BoardHistory;
@@ -205,11 +213,11 @@ namespace ChessUI
             }
         }
 
-        private void DisplayNextBoardInHistory()
+        public void DisplayNextBoardInHistory()
         {
             SetBoardHistoryIndex(_boardViewIndex+1);
         }
-        private void DisplayPreviousBoardInHistory()
+        public void DisplayPreviousBoardInHistory()
         {
             SetBoardHistoryIndex(_boardViewIndex-1);
         }
