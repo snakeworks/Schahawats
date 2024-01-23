@@ -101,6 +101,20 @@
             }
             return piece;
         }
+        public static PieceType GetPieceTypeBySymbol(char symbol)
+        {
+            symbol = char.ToLower(symbol);
+            return symbol switch
+            {
+                'p' => PieceType.Pawn,
+                'n' => PieceType.Knight,
+                'b' => PieceType.Bishop,
+                'r' => PieceType.Rook,
+                'q' => PieceType.Queen,
+                'k' => PieceType.King,
+                _ => PieceType.Pawn,
+            };
+        }
 
         protected IEnumerable<Position> GetMovePositionsInDirection(Position startPosition, Board board, Position direction)
         {

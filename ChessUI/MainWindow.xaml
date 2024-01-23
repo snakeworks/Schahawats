@@ -31,8 +31,8 @@
         <Grid Grid.Column="1">
             <!--Main Menu-->
             <StackPanel Visibility="Collapsed" x:Name="MainMenu">
-                <Button Content="NEW GAME" Click="NewGameButton_Clicked"/>
-                <Button Content="IMPORT PGN"/>
+                <Button x:Name="NewGameButton" Content="NEW GAME" Click="NewGameButton_Clicked"/>
+                <Button x:Name="ImportPgnButton" Content="IMPORT PGN" Click="ImportPgnButton_Click"/>
             </StackPanel>
 
             <!--Board History Menu-->

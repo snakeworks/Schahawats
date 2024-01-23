@@ -11,6 +11,24 @@
                 _ => PlayerColor.None,
             };
         }
+        public static bool IsPromotionFlag(this MoveFlags flag)
+        {
+            return flag == MoveFlags.PromoteToQueen || flag == MoveFlags.PromoteToRook ||
+                   flag == MoveFlags.PromoteToBishop || flag == MoveFlags.PromoteToKnight;
+        }
+        public static MoveFlags GetPromotionFlagForPieceType(this PieceType type)
+        {
+            return type switch
+            {
+                PieceType.Pawn => MoveFlags.None,
+                PieceType.Knight => MoveFlags.PromoteToKnight,
+                PieceType.Bishop => MoveFlags.PromoteToBishop,
+                PieceType.Rook => MoveFlags.PromoteToRook,
+                PieceType.Queen => MoveFlags.PromoteToQueen,
+                PieceType.King => MoveFlags.None,
+                _ => MoveFlags.None,
+            };
+        }
         public static Move GetMoveByTargetPosition(this IEnumerable<Move> moves, Position targetPosition)
         {
             foreach (var move in moves)
@@ -37,8 +55,7 @@
         {
             foreach (var move in moves)
             {
-                if (move.Flag == MoveFlags.PromoteToQueen || move.Flag == MoveFlags.PromoteToRook
-                    || move.Flag == MoveFlags.PromoteToBishop || move.Flag == MoveFlags.PromoteToKnight)
+                if (move.Flag.IsPromotionFlag())
                 {
                     return true;
                 }

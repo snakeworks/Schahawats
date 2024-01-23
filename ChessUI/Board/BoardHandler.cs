@@ -73,7 +73,17 @@ namespace ChessUI
             _moveHistoryGrid.RowDefinitions.Clear();
             _moveHistory?.Clear();
             _previewBoard.LoadPositionFromFenString(Board.FEN_START);
-            DrawBoard(_previewBoard);
+        }
+        public void LoadPgn(string pgn)
+        {
+            ResetBoard();
+            _previewBoard.LoadPgn(pgn);
+            _moveHistory = _previewBoard.BoardHistory;
+            for (int i = 0; i < _moveHistory.Count; i++)
+            {
+                if (_moveHistory[i].PieceMoved == null) continue;
+                AddMoveHistoryButton(i);
+            }
         }
 
         private void OnGameStarted()
@@ -105,12 +115,13 @@ namespace ChessUI
         private void OnMoveMade()
         {
             _moveHistory = GameManager.CurrentBoard.BoardHistory;
+            AddMoveHistoryButton(_moveHistory.Count - 1);
+        }
+        private void AddMoveHistoryButton(int index)
+        {
+            int column = index % 2 == 0 ? 2 : 1;
 
-            int historyCount = _moveHistory.Count - 1;
-
-            int column = historyCount % 2 == 0 ? 2 : 1;
-
-            if (historyCount % 2 != 0)
+            if (index % 2 != 0)
             {
                 RowDefinition definition = new()
                 {
@@ -130,11 +141,11 @@ namespace ChessUI
             Button button = new()
             {
                 Focusable = false,
-                Content = _moveHistory[historyCount].Pgn
+                Content = _moveHistory[index].Pgn
             };
             button.Click += (s, e) =>
             {
-                SetBoardHistoryIndex(historyCount);
+                SetBoardHistoryIndex(index);
             };
             _moveHistoryGrid.Children.Add(button);
 

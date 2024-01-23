@@ -2,9 +2,6 @@
 {
     public static class GameManager
     {
-
-        public static Gamemode CurrentGamemode { get; private set; } = Gamemode.None;
-
         public static Board CurrentBoard { get; private set; }
         public static PlayerColor CurrentPlayer { get; private set; }
 
@@ -14,21 +11,10 @@
         public static event Action GameStarted;
         public static event Action GameEnded;
 
-        public static void StartGame(Gamemode mode)
+        public static void StartGame()
         {
-            CurrentGamemode = mode;
-
-            switch (mode)
-            {
-                case Gamemode.Normal:
-                    CurrentBoard = new(Board.FEN_START);
-                    CurrentPlayer = PlayerColor.White;
-                    break;
-                case Gamemode.Analysis:
-                    break;
-                case Gamemode.Puzzles:
-                    break;
-            }
+            CurrentBoard = new(Board.FEN_START);
+            CurrentPlayer = PlayerColor.White;
 
             GameStarted?.Invoke();
         }
@@ -62,7 +48,6 @@
             
             GameEnded?.Invoke();
 
-            CurrentGamemode = Gamemode.None;
             CurrentBoard = null;
         }
     }

@@ -2,7 +2,6 @@
 using Microsoft.Win32;
 using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace ChessUI
@@ -36,7 +35,7 @@ namespace ChessUI
         {
             ExportPgnButton.IsEnabled = false;
             EndGameButton.IsEnabled = true;
-            GameManager.StartGame(Gamemode.Normal);
+            GameManager.StartGame();
             OpenMenu(BoardHistoryMenu);
         }
         private void ExportPgnButton_Click(object sender, RoutedEventArgs e)
@@ -59,6 +58,30 @@ namespace ChessUI
                 // ...
             }
         }
+        private void ImportPgnButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new()
+            {
+                DefaultExt = ".txt",
+                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*"
+            };
+
+            bool? result = openFileDialog.ShowDialog();
+
+            if (result == true)
+            {
+                string path = openFileDialog.FileName;
+                using StreamReader reader = new(path);   
+                string pgn = reader.ReadToEnd();
+                _boardHandler.LoadPgn(pgn);
+                OpenMenu(BoardHistoryMenu);
+            }
+            else
+            {
+                // ...
+            }
+        }
+
         private void EndGameButton_Click(object sender, RoutedEventArgs e)
         {
             GameManager.EndGame(MatchResult.ForcefullyEnded);
