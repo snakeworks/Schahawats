@@ -244,21 +244,19 @@ namespace Chess
                 return null;
             }
 
-            string move = moveInPgn;
-
             PieceType pieceTypeMoved = PieceType.Pawn;
             PieceType pieceTypePromoted = PieceType.Pawn;
 
             List<int> rowsFound = new();
             List<int> colsFound = new();
 
-            if (move == "O-O")
+            if (moveInPgn == "O-O")
             {
                 pieceTypeMoved = PieceType.King;
                 rowsFound.Add(pieceColor == PlayerColor.White ? 7 : 0);
                 colsFound.Add(6);
             }
-            else if (move == "O-O-O")
+            else if (moveInPgn == "O-O-O")
             {
                 pieceTypeMoved = PieceType.King;
                 rowsFound.Add(pieceColor == PlayerColor.White ? 7 : 0);
@@ -266,11 +264,11 @@ namespace Chess
             }
             else
             {
-                foreach (var character in move)
+                foreach (var character in moveInPgn)
                 {
                     if (Piece.IsPgnPieceSymbol(character))
                     {
-                        if (move[0] == character)
+                        if (moveInPgn[0] == character)
                         {
                             pieceTypeMoved = Piece.GetPieceTypeBySymbol(character);
                         }
