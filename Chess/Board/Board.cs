@@ -423,18 +423,20 @@ namespace Chess
 
                 PlayerColor pieceColor = i % 2 == 0 ? PlayerColor.White : PlayerColor.Black;
                 
-                List<int> targetRows = new();
-                List<int> targetCols = new();
+                List<int> rowsFound = new();
+                List<int> colsFound = new();
 
                 if (move.StartsWith("O-O"))
                 {
-                    targetRows.Add(pieceColor == PlayerColor.White ? 7 : 0);
-                    targetCols.Add(6);
+                    pieceTypeMoved = PieceType.King;
+                    rowsFound.Add(pieceColor == PlayerColor.White ? 7 : 0);
+                    colsFound.Add(6);
                 }
                 else if (move.StartsWith("O-O-O"))
                 {
-                    targetRows.Add(pieceColor == PlayerColor.White ? 7 : 0);
-                    targetCols.Add(2);
+                    pieceTypeMoved = PieceType.King;
+                    rowsFound.Add(pieceColor == PlayerColor.White ? 7 : 0);
+                    colsFound.Add(2);
                 }
                 else
                 {
@@ -454,35 +456,35 @@ namespace Chess
                         else if (IsFile(character))
                         {
                             var kvp = _fileSymbols.FirstOrDefault(x => x.Value == character);
-                            targetCols.Add(kvp.Key);
+                            colsFound.Add(kvp.Key);
                         }
                         else if (char.IsDigit(character))
                         {
-                            targetRows.Add(MAX_ROW - int.Parse(character.ToString()));
+                            rowsFound.Add(MAX_ROW - int.Parse(character.ToString()));
                         }
                     }
                 }
 
-                int startRow = targetRows.Count == 1 ? -1 : targetRows[0];
-                int startCol = targetCols.Count == 1 ? -1 : targetCols[0];
+                int startRow = rowsFound.Count == 1 ? -1 : rowsFound[0];
+                int startCol = colsFound.Count == 1 ? -1 : colsFound[0];
 
-                int targetRow = targetRows[targetRows.Count - 1];
-                int targetCol = targetCols[targetCols.Count - 1];
+                int targetRow = rowsFound[rowsFound.Count - 1];
+                int targetCol = colsFound[colsFound.Count - 1];
 
                 Move finalMove;
 
                 if (pieceTypePromoted != PieceType.Pawn)
                 {
-                    finalMove = GetMoveFromPieceByFlag(pieceTypeMoved, pieceColor, pieceTypePromoted.GetPromotionFlagForPieceType());
+                    finalMove = GetMoveFromPieceByFlag(pieceTypeMoved, pieceColor, pieceTypePromoted.GetPromotionFlagForPieceType(), startRow, startCol);
                 }
                 else
                 {
-                    finalMove = GetMoveFromPieceByTargetPosition(pieceTypeMoved, pieceColor, new(targetRow, targetCol));
+                    finalMove = GetMoveFromPieceByTargetPosition(pieceTypeMoved, pieceColor, new(targetRow, targetCol), startRow, startCol);
                 }
 
+                // Debug.WriteLine($"{pieceColor} {pieceTypeMoved} (={pieceTypePromoted}) {new Position(targetRow, targetCol)}");
+             
                 MakeMove(finalMove);
-
-                Debug.WriteLine($"{pieceColor} {pieceTypeMoved} (={pieceTypePromoted}) {new Position(targetRow, targetCol)}");
             }
 
             LoadPositionFromFenString(FEN_START);
@@ -510,7 +512,7 @@ namespace Chess
                 }
             }
         }
-        private Move GetMoveFromPieceByTargetPosition(PieceType type, PlayerColor color, Position targetPos)
+        private Move GetMoveFromPieceByTargetPosition(PieceType type, PlayerColor color, Position targetPos, int overrideRow = -1, int overrideCol = -1)
         {
             Move move;
             for (int i = 0; i < MAX_ROW; i++)
@@ -519,6 +521,9 @@ namespace Chess
                 {
                     if (_pieces[i, j] != null && _pieces[i, j].Type == type && _pieces[i, j].Color == color)
                     {
+                        if (overrideRow != -1 && i != overrideRow) continue;
+                        if (overrideCol != -1 && j != overrideCol) continue;
+
                         move = _pieces[i, j].GetLegalMoves(new(i, j), this).GetMoveByTargetPosition(targetPos);
                         if (move != null) return move;
                     }
@@ -526,7 +531,7 @@ namespace Chess
             }
             return null;
         }
-        private Move GetMoveFromPieceByFlag(PieceType type, PlayerColor color, MoveFlags flag)
+        private Move GetMoveFromPieceByFlag(PieceType type, PlayerColor color, MoveFlags flag, int overrideRow = -1, int overrideCol = -1)
         {
             Move move;
             for (int i = 0; i < MAX_ROW; i++)
@@ -535,6 +540,9 @@ namespace Chess
                 {
                     if (_pieces[i, j] != null && _pieces[i, j].Type == type && _pieces[i, j].Color == color)
                     {
+                        if (overrideRow != -1 && i != overrideRow) continue;
+                        if (overrideCol != -1 && j != overrideCol) continue;
+
                         move = _pieces[i, j].GetLegalMoves(new(i, j), this).GetMoveByFlag(flag);
                         if (move != null) return move;
                     }
