@@ -205,10 +205,6 @@ namespace Chess
                 return c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' ||
                        c == 'f' || c == 'g' || c == 'h';
             }
-            bool IsPiece(char c)
-            {
-                return c == 'N' || c == 'B' || c == 'Q' || c == 'K' || c == 'R';
-            }
             Move GetMoveFromPieceByTargetPosition(PieceType type, PlayerColor color, Position targetPos, int overrideRow = -1, int overrideCol = -1)
             {
                 Move move;
@@ -272,7 +268,7 @@ namespace Chess
             {
                 foreach (var character in move)
                 {
-                    if (IsPiece(character))
+                    if (Piece.IsPgnPieceSymbol(character))
                     {
                         if (move[0] == character)
                         {

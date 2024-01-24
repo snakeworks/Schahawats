@@ -1,5 +1,4 @@
 ﻿using Chess;
-using System.Printing;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -107,7 +106,7 @@ namespace ChessUI
             GameManager.CurrentBoard.BoardUpdated += OnCurrentBoardDraw;
             GameManager.CurrentBoard.BoardUpdated += OnMoveMade;
             _moveHistory = GameManager.CurrentBoard.BoardHistory;
-            DrawBoard(GameManager.CurrentBoard);
+            OnCurrentBoardDraw();
         }
 
         private void OnPreviewBoardDraw()

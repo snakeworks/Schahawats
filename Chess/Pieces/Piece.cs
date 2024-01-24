@@ -115,6 +115,11 @@
                 _ => PieceType.Pawn,
             };
         }
+        public static bool IsPgnPieceSymbol(char symbol)
+        {
+            return symbol == 'N' || symbol == 'B' ||
+                   symbol == 'Q' || symbol == 'K' || symbol == 'R';
+        }
 
         protected IEnumerable<Position> GetMovePositionsInDirection(Position startPosition, Board board, Position direction)
         {
