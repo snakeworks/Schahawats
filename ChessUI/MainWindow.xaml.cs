@@ -73,8 +73,17 @@ namespace ChessUI
                 string path = openFileDialog.FileName;
                 using StreamReader reader = new(path);   
                 string pgn = reader.ReadToEnd();
-                _boardHandler.LoadPgn(pgn);
-                OpenMenu(BoardHistoryMenu);
+
+                bool pgnResult = _boardHandler.LoadPgn(pgn);
+                
+                if (pgnResult == true)
+                {
+                    OpenMenu(BoardHistoryMenu);
+                }
+                else
+                {
+                    MessageBox.Show("The PGN of the game is invalid.", "Failed to load PGN", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
             else
             {

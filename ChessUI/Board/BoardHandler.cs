@@ -1,4 +1,5 @@
 ﻿using Chess;
+using System.Printing;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -31,6 +32,7 @@ namespace ChessUI
         private int _boardViewIndex = 0;
 
         private List<BoardRecord> _moveHistory;
+        private bool _isLoadingPgn = false;
 
         private Board ActiveBoard
         {
@@ -48,7 +50,7 @@ namespace ChessUI
             _highlightGrid = highlightGrid;
             _moveHistoryGrid = moveHistoryGrid;
             _previewBoard = new(Board.FEN_START);
-            _previewBoard.BoardUpdated += () => DrawBoard(_previewBoard);
+            _previewBoard.BoardUpdated += OnPreviewBoardDraw;
             GameManager.GameStarted += OnGameStarted;
             
             for (int i = 0; i < Board.MAX_ROW; i++)
@@ -74,31 +76,53 @@ namespace ChessUI
             _moveHistory?.Clear();
             _previewBoard.LoadPositionFromFenString(Board.FEN_START);
         }
-        public void LoadPgn(string pgn)
+        public bool LoadPgn(string pgn)
         {
             ResetBoard();
-            _previewBoard.LoadPgn(pgn);
+
+            _isLoadingPgn = true;
+
+            bool result = _previewBoard.LoadPgn(pgn);
+
+            if (!result)
+            {
+                _isLoadingPgn = false;
+                return false;
+            }
+            
             _moveHistory = _previewBoard.BoardHistory;
             for (int i = 0; i < _moveHistory.Count; i++)
             {
                 if (_moveHistory[i].PieceMoved == null) continue;
                 AddMoveHistoryButton(i);
             }
+
+            _isLoadingPgn = false;
+            return true;
         }
 
         private void OnGameStarted()
         {
             ResetBoard();
-            GameManager.CurrentBoard.BoardUpdated += () => DrawBoard(GameManager.CurrentBoard);
+            GameManager.CurrentBoard.BoardUpdated += OnCurrentBoardDraw;
             GameManager.CurrentBoard.BoardUpdated += OnMoveMade;
             _moveHistory = GameManager.CurrentBoard.BoardHistory;
             DrawBoard(GameManager.CurrentBoard);
         }
 
+        private void OnPreviewBoardDraw()
+        {
+            if (_isLoadingPgn) return;
+            DrawBoard(_previewBoard);
+        }
+        private void OnCurrentBoardDraw()
+        {
+            _boardViewIndex = _moveHistory.Count - 1;
+            DrawBoard(GameManager.CurrentBoard);
+        }
+
         private void DrawBoard(Board board)
         {
-            if (board == GameManager.CurrentBoard) _boardViewIndex = _moveHistory.Count - 1;
-
             for (int i = 0; i < Board.MAX_ROW; i++)
             {
                 for (int j = 0; j < Board.MAX_COLUMN; j++)

@@ -198,6 +198,129 @@ namespace Chess
                 BoardUpdated?.Invoke();
             }
         }
+        public bool MakeMove(string moveInPgn, PlayerColor pieceColor)
+        {
+            bool IsFile(char c)
+            {
+                return c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' ||
+                       c == 'f' || c == 'g' || c == 'h';
+            }
+            bool IsPiece(char c)
+            {
+                return c == 'N' || c == 'B' || c == 'Q' || c == 'K' || c == 'R';
+            }
+            Move GetMoveFromPieceByTargetPosition(PieceType type, PlayerColor color, Position targetPos, int overrideRow = -1, int overrideCol = -1)
+            {
+                Move move;
+                for (int i = 0; i < MAX_ROW; i++)
+                {
+                    for (int j = 0; j < MAX_COLUMN; j++)
+                    {
+                        if (_pieces[i, j] != null && _pieces[i, j].Type == type && _pieces[i, j].Color == color)
+                        {
+                            if (overrideRow != -1 && i != overrideRow) continue;
+                            if (overrideCol != -1 && j != overrideCol) continue;
+
+                            move = _pieces[i, j].GetLegalMoves(new(i, j), this).GetMoveByTargetPosition(targetPos);
+                            if (move != null) return move;
+                        }
+                    }
+                }
+                return null;
+            }
+            Move GetMoveFromPieceByFlag(PieceType type, PlayerColor color, MoveFlags flag, int overrideRow = -1, int overrideCol = -1)
+            {
+                Move move;
+                for (int i = 0; i < MAX_ROW; i++)
+                {
+                    for (int j = 0; j < MAX_COLUMN; j++)
+                    {
+                        if (_pieces[i, j] != null && _pieces[i, j].Type == type && _pieces[i, j].Color == color)
+                        {
+                            if (overrideRow != -1 && i != overrideRow) continue;
+                            if (overrideCol != -1 && j != overrideCol) continue;
+
+                            move = _pieces[i, j].GetLegalMoves(new(i, j), this).GetMoveByFlag(flag);
+                            if (move != null) return move;
+                        }
+                    }
+                }
+                return null;
+            }
+
+            string move = moveInPgn;
+
+            PieceType pieceTypeMoved = PieceType.Pawn;
+            PieceType pieceTypePromoted = PieceType.Pawn;
+
+            List<int> rowsFound = new();
+            List<int> colsFound = new();
+
+            if (move == "O-O")
+            {
+                pieceTypeMoved = PieceType.King;
+                rowsFound.Add(pieceColor == PlayerColor.White ? 7 : 0);
+                colsFound.Add(6);
+            }
+            else if (move == "O-O-O")
+            {
+                pieceTypeMoved = PieceType.King;
+                rowsFound.Add(pieceColor == PlayerColor.White ? 7 : 0);
+                colsFound.Add(2);
+            }
+            else
+            {
+                foreach (var character in move)
+                {
+                    if (IsPiece(character))
+                    {
+                        if (move[0] == character)
+                        {
+                            pieceTypeMoved = Piece.GetPieceTypeBySymbol(character);
+                        }
+                        else
+                        {
+                            pieceTypePromoted = Piece.GetPieceTypeBySymbol(character);
+                        }
+                    }
+                    else if (IsFile(character))
+                    {
+                        var kvp = _fileSymbols.FirstOrDefault(x => x.Value == character);
+                        colsFound.Add(kvp.Key);
+                    }
+                    else if (char.IsDigit(character))
+                    {
+                        rowsFound.Add(MAX_ROW - int.Parse(character.ToString()));
+                    }
+                }
+            }
+
+            if (rowsFound.Count <= 0 || colsFound.Count <= 0) return false;
+
+            int startRow = rowsFound.Count <= 1 ? -1 : rowsFound[0];
+            int startCol = colsFound.Count <= 1 ? -1 : colsFound[0];
+
+            int targetRow = rowsFound[rowsFound.Count - 1];
+            int targetCol = colsFound[colsFound.Count - 1];
+
+            Move finalMove;
+
+            if (pieceTypePromoted != PieceType.Pawn)
+            {
+                finalMove = GetMoveFromPieceByFlag(pieceTypeMoved, pieceColor, pieceTypePromoted.GetPromotionFlagForPieceType(), startRow, startCol);
+            }
+            else
+            {
+                finalMove = GetMoveFromPieceByTargetPosition(pieceTypeMoved, pieceColor, new(targetRow, targetCol), startRow, startCol);
+            }
+
+            if (finalMove == null) return false;
+
+            MakeMove(finalMove);
+
+            return true;
+        }
+        
         public bool IsInCheck(PlayerColor color)
         {
             for (int i = 0; i < MAX_ROW; i++)
@@ -215,10 +338,6 @@ namespace Chess
             return !GetAllLegalMovesFor(color).Any() && IsInCheck(color);
         }
 
-        public bool IsHistoryRecordValid()
-        {
-            return BoardHistory.Count > 1;
-        }
         private void AddHistoryRecord(string fen, string pgn, Piece pieceToMove, Move movePlayed)
         {
             BoardRecord record = new(fen, pgn, pieceToMove, movePlayed);
@@ -230,24 +349,6 @@ namespace Chess
             if (position.Row == 0 && perspective == PlayerColor.White) return true;
             else if (position.Row == MAX_ROW - 1 && perspective == PlayerColor.Black) return true;
             return false;
-        }
-
-        public void PrintBoard()
-        {
-            for (int i = 0; i < MAX_ROW; i++)
-            {
-                string outline = "-";
-                string row = "|";
-                for (int j = 0; j < MAX_COLUMN; j++) 
-                {
-                    outline += "----";
-                    if (_pieces[i, j] == null) row += "   |";
-                    else row += $" {_pieces[i, j].Symbol} |";
-                }
-                Debug.WriteLine(outline);
-                Debug.WriteLine(row);
-                if (i == MAX_ROW - 1) Debug.WriteLine(outline);
-            }
         }
 
         public void LoadPositionFromFenString(string fen)
@@ -391,166 +492,84 @@ namespace Chess
             return pgn;
         }
 
-        public void LoadPgn(string pgn)
+        public bool LoadPgn(string pgn)
         {
-            bool IsFile(char c)
+            IEnumerable<string> GetMovesFromPgn()
             {
-                return c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' ||
-                       c == 'f' || c == 'g' || c == 'h';
-            }
-            bool IsPiece(char c)
-            {
-                return c == 'N' || c == 'B' || c == 'Q' || c == 'K' || c == 'R';
+                string curParsingMove = string.Empty;
+                bool isBracketsClosed = true;
+                foreach (var c in pgn)
+                {
+                    if (c == '[')
+                    { 
+                        isBracketsClosed = false;
+                    }
+                    if (c == ']')
+                    {
+                        isBracketsClosed = true;
+                        continue;
+                    }
+
+                    if (isBracketsClosed == false) continue;
+
+                    if (char.IsWhiteSpace(c) && !string.IsNullOrEmpty(curParsingMove))
+                    {
+                        yield return curParsingMove;
+                        curParsingMove = string.Empty;
+                        continue;
+                    }
+
+                    if (string.IsNullOrEmpty(curParsingMove))
+                    {
+                        if (char.IsDigit(c) || c == '.' || char.IsWhiteSpace(c)) continue;
+                        curParsingMove += c;
+                    }
+                    else
+                    {
+                        curParsingMove += c;
+                    }
+                }
             }
 
-            if (string.IsNullOrEmpty(pgn)) return;
+            if (string.IsNullOrEmpty(pgn)) return false;
 
             BoardHistory = new();
             AddHistoryRecord(FEN_START, null, null, null);
 
             LoadPositionFromFenString(FEN_START);
 
-            var moves = GetMovesFromPgn(pgn);
+            var moves = GetMovesFromPgn();
             
-            if (moves == null || moves == Enumerable.Empty<Move>()) return;
+            if (moves == null || moves == Enumerable.Empty<Move>()) return false;
 
             for (int i = 0; i < moves.Count(); i++)
             {
-                string move = moves.ElementAt(i).Trim();
-
-                PieceType pieceTypeMoved = PieceType.Pawn;
-                PieceType pieceTypePromoted = PieceType.Pawn;
-
-                PlayerColor pieceColor = i % 2 == 0 ? PlayerColor.White : PlayerColor.Black;
-                
-                List<int> rowsFound = new();
-                List<int> colsFound = new();
-
-                if (move.StartsWith("O-O"))
-                {
-                    pieceTypeMoved = PieceType.King;
-                    rowsFound.Add(pieceColor == PlayerColor.White ? 7 : 0);
-                    colsFound.Add(6);
-                }
-                else if (move.StartsWith("O-O-O"))
-                {
-                    pieceTypeMoved = PieceType.King;
-                    rowsFound.Add(pieceColor == PlayerColor.White ? 7 : 0);
-                    colsFound.Add(2);
-                }
-                else
-                {
-                    foreach (var character in move)
-                    {
-                        if (IsPiece(character))
-                        {
-                            if (move[0] == character)
-                            {
-                                pieceTypeMoved = Piece.GetPieceTypeBySymbol(character);
-                            }
-                            else
-                            {
-                                pieceTypePromoted = Piece.GetPieceTypeBySymbol(character);
-                            }
-                        }
-                        else if (IsFile(character))
-                        {
-                            var kvp = _fileSymbols.FirstOrDefault(x => x.Value == character);
-                            colsFound.Add(kvp.Key);
-                        }
-                        else if (char.IsDigit(character))
-                        {
-                            rowsFound.Add(MAX_ROW - int.Parse(character.ToString()));
-                        }
-                    }
-                }
-
-                int startRow = rowsFound.Count == 1 ? -1 : rowsFound[0];
-                int startCol = colsFound.Count == 1 ? -1 : colsFound[0];
-
-                int targetRow = rowsFound[rowsFound.Count - 1];
-                int targetCol = colsFound[colsFound.Count - 1];
-
-                Move finalMove;
-
-                if (pieceTypePromoted != PieceType.Pawn)
-                {
-                    finalMove = GetMoveFromPieceByFlag(pieceTypeMoved, pieceColor, pieceTypePromoted.GetPromotionFlagForPieceType(), startRow, startCol);
-                }
-                else
-                {
-                    finalMove = GetMoveFromPieceByTargetPosition(pieceTypeMoved, pieceColor, new(targetRow, targetCol), startRow, startCol);
-                }
-
-                // Debug.WriteLine($"{pieceColor} {pieceTypeMoved} (={pieceTypePromoted}) {new Position(targetRow, targetCol)}");
-             
-                MakeMove(finalMove);
+                bool result = MakeMove(moves.ElementAt(i).Trim(), i % 2 == 0 ? PlayerColor.White : PlayerColor.Black);
+                if (!result) return false;
             }
 
             LoadPositionFromFenString(FEN_START);
-        }
-        private IEnumerable<string> GetMovesFromPgn(string pgn)
-        {
-            string curParsingMove = string.Empty;
-            foreach (var c in pgn)
-            {
-                if (char.IsWhiteSpace(c) && !string.IsNullOrEmpty(curParsingMove))
-                {
-                    yield return curParsingMove;
-                    curParsingMove = string.Empty;
-                    continue;
-                }
 
-                if (string.IsNullOrEmpty(curParsingMove))
-                {
-                    if (char.IsDigit(c) || c == '.' || char.IsWhiteSpace(c)) continue;
-                    curParsingMove += c;
-                }
-                else
-                {
-                    curParsingMove += c;
-                }
-            }
+            return true;
         }
-        private Move GetMoveFromPieceByTargetPosition(PieceType type, PlayerColor color, Position targetPos, int overrideRow = -1, int overrideCol = -1)
+
+        public void PrintBoard()
         {
-            Move move;
             for (int i = 0; i < MAX_ROW; i++)
             {
+                string outline = "-";
+                string row = "|";
                 for (int j = 0; j < MAX_COLUMN; j++)
                 {
-                    if (_pieces[i, j] != null && _pieces[i, j].Type == type && _pieces[i, j].Color == color)
-                    {
-                        if (overrideRow != -1 && i != overrideRow) continue;
-                        if (overrideCol != -1 && j != overrideCol) continue;
-
-                        move = _pieces[i, j].GetLegalMoves(new(i, j), this).GetMoveByTargetPosition(targetPos);
-                        if (move != null) return move;
-                    }
+                    outline += "----";
+                    if (_pieces[i, j] == null) row += "   |";
+                    else row += $" {_pieces[i, j].Symbol} |";
                 }
+                Debug.WriteLine(outline);
+                Debug.WriteLine(row);
+                if (i == MAX_ROW - 1) Debug.WriteLine(outline);
             }
-            return null;
         }
-        private Move GetMoveFromPieceByFlag(PieceType type, PlayerColor color, MoveFlags flag, int overrideRow = -1, int overrideCol = -1)
-        {
-            Move move;
-            for (int i = 0; i < MAX_ROW; i++)
-            {
-                for (int j = 0; j < MAX_COLUMN; j++)
-                {
-                    if (_pieces[i, j] != null && _pieces[i, j].Type == type && _pieces[i, j].Color == color)
-                    {
-                        if (overrideRow != -1 && i != overrideRow) continue;
-                        if (overrideCol != -1 && j != overrideCol) continue;
-
-                        move = _pieces[i, j].GetLegalMoves(new(i, j), this).GetMoveByFlag(flag);
-                        if (move != null) return move;
-                    }
-                }
-            }
-            return null;
-        }
-
         private void ResetBoard()
         {
             for (int i = 0; i < MAX_ROW; i++)
