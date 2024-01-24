@@ -213,21 +213,16 @@ namespace ChessUI
         }
         private void TryMakeMove(Position position)
         {
-            Move move = _cachedMoves.GetMoveByTargetPosition(position);
+            Move move = _cachedMoves.ContainsPromotionMoves() ? 
+                        _cachedMoves.GetMoveByTargetPosition(position, MoveFlags.PromoteToQueen) :
+                        _cachedMoves.GetMoveByTargetPosition(position);
 
             HideAllHighlights();
             ShowLastMoveHighlight();
 
             if (move == null) return;
 
-            if (_cachedMoves.ContainsPromotionMoves())
-            {
-                GameManager.MakeMove(_cachedMoves.GetMoveByFlag(MoveFlags.PromoteToQueen));
-            }
-            else
-            {
-                GameManager.MakeMove(move);
-            }
+            GameManager.MakeMove(move);
         }
 
         public void HandleKeyDown(object sender, KeyEventArgs e)

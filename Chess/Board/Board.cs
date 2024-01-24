@@ -205,7 +205,7 @@ namespace Chess
                 return c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' ||
                        c == 'f' || c == 'g' || c == 'h';
             }
-            Move GetMoveFromPieceByTargetPosition(PieceType type, PlayerColor color, Position targetPos, int overrideRow = -1, int overrideCol = -1)
+            Move GetMove(PieceType type, PlayerColor color, Position targetPos, int overrideRow = -1, int overrideCol = -1)
             {
                 Move move;
                 for (int i = 0; i < MAX_ROW; i++)
@@ -224,7 +224,7 @@ namespace Chess
                 }
                 return null;
             }
-            Move GetMoveFromPieceByFlag(PieceType type, PlayerColor color, MoveFlags flag, int overrideRow = -1, int overrideCol = -1)
+            Move GetMoveByFlag(PieceType type, PlayerColor color, Position targetPos, MoveFlags flag, int overrideRow = -1, int overrideCol = -1)
             {
                 Move move;
                 for (int i = 0; i < MAX_ROW; i++)
@@ -236,7 +236,7 @@ namespace Chess
                             if (overrideRow != -1 && i != overrideRow) continue;
                             if (overrideCol != -1 && j != overrideCol) continue;
 
-                            move = _pieces[i, j].GetLegalMoves(new(i, j), this).GetMoveByFlag(flag);
+                            move = _pieces[i, j].GetLegalMoves(new(i, j), this).GetMoveByTargetPosition(targetPos, flag);
                             if (move != null) return move;
                         }
                     }
@@ -301,11 +301,11 @@ namespace Chess
 
             if (pieceTypePromoted != PieceType.Pawn)
             {
-                finalMove = GetMoveFromPieceByFlag(pieceTypeMoved, pieceColor, pieceTypePromoted.GetPromotionFlagForPieceType(), startRow, startCol);
+                finalMove = GetMoveByFlag(pieceTypeMoved, pieceColor, new(targetRow, targetCol), pieceTypePromoted.GetPromotionFlagForPieceType(), startRow, startCol);
             }
             else
             {
-                finalMove = GetMoveFromPieceByTargetPosition(pieceTypeMoved, pieceColor, new(targetRow, targetCol), startRow, startCol);
+                finalMove = GetMove(pieceTypeMoved, pieceColor, new(targetRow, targetCol), startRow, startCol);
             }
 
             if (finalMove == null) return false;

@@ -46,11 +46,11 @@
             }
             return null;
         }
-        public static Move GetMoveByFlag(this IEnumerable<Move> moves, MoveFlags flag)
+        public static Move GetMoveByTargetPosition(this IEnumerable<Move> moves, Position targetPosition, MoveFlags flag)
         {
             foreach (var move in moves)
             {
-                if (move.Flag == flag)
+                if (move.TargetPosition == targetPosition && move.Flag == flag)
                 {
                     return move;
                 }
