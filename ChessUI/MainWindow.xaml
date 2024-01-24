@@ -32,7 +32,7 @@
             <!--Main Menu-->
             <StackPanel Visibility="Collapsed" x:Name="MainMenu">
                 <Button x:Name="NewGameButton" Content="NEW GAME" Click="NewGameButton_Clicked"/>
-                <Button x:Name="ImportPgnButton" Content="IMPORT PGN" Click="ImportPgnButton_Click"/>
+                <Button x:Name="LoadPgnButton" Content="LOAD PGN" Click="LoadPgnButton_Click"/>
             </StackPanel>
 
             <!--Board History Menu-->
@@ -66,7 +66,7 @@
                     <Button Content="◀" Width="30"/>
                     <Button Content="▶" Width="30"/>
                     <Button x:Name="EndGameButton" Content="END GAME" Click="EndGameButton_Click"/>
-                    <Button x:Name="ExportPgnButton" Content="EXPORT PGN" IsEnabled="False" Click="ExportPgnButton_Click"/>
+                    <Button x:Name="SavePgnButton" Content="SAVE PGN" IsEnabled="False" Click="SavePgnButton_Click"/>
                 </StackPanel>
             </Grid>
         </Grid>

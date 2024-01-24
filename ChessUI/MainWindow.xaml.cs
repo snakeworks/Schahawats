@@ -33,12 +33,17 @@ namespace ChessUI
 
         private void NewGameButton_Clicked(object sender, RoutedEventArgs e)
         {
-            ExportPgnButton.IsEnabled = false;
+            SavePgnButton.IsEnabled = false;
             EndGameButton.IsEnabled = true;
+
+            EndGameButton.Visibility = Visibility.Visible;
+            SavePgnButton.Visibility = Visibility.Visible;
+
             GameManager.StartGame();
+
             OpenMenu(BoardHistoryMenu);
         }
-        private void ExportPgnButton_Click(object sender, RoutedEventArgs e)
+        private void SavePgnButton_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog saveFileDialog = new()
             {
@@ -52,13 +57,10 @@ namespace ChessUI
             {
                 string path = saveFileDialog.FileName;
                 File.WriteAllText(path, GameManager.LastPgnString);
-            }
-            else
-            {
-                // ...
+                MessageBox.Show($"Successfully saved PGN to '{path}'", "Save PGN", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
-        private void ImportPgnButton_Click(object sender, RoutedEventArgs e)
+        private void LoadPgnButton_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new()
             {
@@ -75,19 +77,18 @@ namespace ChessUI
                 string pgn = reader.ReadToEnd();
 
                 bool pgnResult = _boardHandler.LoadPgn(pgn);
+
                 
                 if (pgnResult == true)
                 {
+                    EndGameButton.Visibility = Visibility.Collapsed;
+                    SavePgnButton.Visibility = Visibility.Collapsed;
                     OpenMenu(BoardHistoryMenu);
                 }
                 else
                 {
-                    MessageBox.Show("The PGN of the game is invalid.", "Failed to load PGN", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("The PGN of the game is invalid.", "Load PGN", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-            }
-            else
-            {
-                // ...
             }
         }
 
@@ -104,7 +105,7 @@ namespace ChessUI
         private void OnGameEnded()
         {
             EndGameButton.IsEnabled = false;
-            ExportPgnButton.IsEnabled = true;
+            SavePgnButton.IsEnabled = true;
         }
 
         private void OpenMenu(UIElement menu)
