@@ -52,7 +52,7 @@ namespace ChessUI
             _moveHistoryGrid = moveHistoryGrid;
             _previewBoard = new(Board.FEN_START);
             _historyButtons = new();
-            _previewBoard.BoardUpdated += OnPreviewBoardDraw;
+            _previewBoard.BoardUpdated += OnPreviewBoardUpdated;
             GameManager.GameStarted += OnGameStarted;
             
             for (int i = 0; i < Board.MAX_ROW; i++)
@@ -78,6 +78,7 @@ namespace ChessUI
             _moveHistory?.Clear();
             _historyButtons.Clear();
             _selectedHistoryButton = null;
+            _boardViewIndex = 0;
             _previewBoard.LoadPositionFromFenString(Board.FEN_START);
         }
         public bool LoadPgn(string pgn)
@@ -108,20 +109,22 @@ namespace ChessUI
         private void OnGameStarted()
         {
             ResetBoard();
-            GameManager.CurrentBoard.BoardUpdated += OnCurrentBoardDraw;
-            GameManager.CurrentBoard.BoardUpdated += OnMoveMade;
+            GameManager.CurrentBoard.BoardUpdated += OnCurrentBoardUpdated;
             _moveHistory = GameManager.CurrentBoard.BoardHistory;
-            OnCurrentBoardDraw();
+            OnCurrentBoardUpdated();
         }
 
-        private void OnPreviewBoardDraw()
+        private void OnPreviewBoardUpdated()
         {
             if (_isLoadingPgn) return;
             DrawBoard(_previewBoard);
         }
-        private void OnCurrentBoardDraw()
+        private void OnCurrentBoardUpdated()
         {
-            _boardViewIndex = _moveHistory.Count - 1;
+            _moveHistory = GameManager.CurrentBoard.BoardHistory;
+            AddMoveHistoryButton(_moveHistory.Count - 1);
+
+            SetBoardHistoryIndex(_moveHistory.Count - 1, false);
             DrawBoard(GameManager.CurrentBoard);
         }
 
@@ -140,13 +143,10 @@ namespace ChessUI
             HideAllHighlights();
             ShowLastMoveHighlight();
         }
-        private void OnMoveMade()
-        {
-            _moveHistory = GameManager.CurrentBoard.BoardHistory;
-            AddMoveHistoryButton(_moveHistory.Count - 1);
-        }
         private void AddMoveHistoryButton(int index)
         {
+            if (index <= 0) return;
+
             int column = index % 2 == 0 ? 2 : 1;
 
             if (index % 2 != 0)
@@ -256,14 +256,15 @@ namespace ChessUI
         {
             SetBoardHistoryIndex(_boardViewIndex-1);
         }
-        private void SetBoardHistoryIndex(int index)
+        private void SetBoardHistoryIndex(int index, bool updatePreviewBoard = true)
         {
             if (!IsMoveHistoryValid()) return;
 
             _boardViewIndex = index;
             _boardViewIndex = Math.Clamp(_boardViewIndex, 0, _moveHistory.Count - 1);
-            _previewBoard.LoadPositionFromFenString(_moveHistory[_boardViewIndex].Fen);
             
+            if (updatePreviewBoard) _previewBoard.LoadPositionFromFenString(_moveHistory[_boardViewIndex].Fen);
+
             if (_selectedHistoryButton != null)
             {
                 _selectedHistoryButton.IsEnabled = true;
