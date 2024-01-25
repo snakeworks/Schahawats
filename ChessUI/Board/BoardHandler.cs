@@ -30,7 +30,9 @@ namespace ChessUI
         private PlayerColor _perspective = PlayerColor.White;
         private int _boardViewIndex = 0;
 
+        private Button _selectedHistoryButton;
         private List<BoardRecord> _moveHistory;
+        private List<Button> _historyButtons;
         private bool _isLoadingPgn = false;
 
         private Board ActiveBoard
@@ -49,6 +51,7 @@ namespace ChessUI
             _highlightGrid = highlightGrid;
             _moveHistoryGrid = moveHistoryGrid;
             _previewBoard = new(Board.FEN_START);
+            _historyButtons = new();
             _previewBoard.BoardUpdated += OnPreviewBoardDraw;
             GameManager.GameStarted += OnGameStarted;
             
@@ -73,6 +76,8 @@ namespace ChessUI
             _moveHistoryGrid.Children.Clear();
             _moveHistoryGrid.RowDefinitions.Clear();
             _moveHistory?.Clear();
+            _historyButtons.Clear();
+            _selectedHistoryButton = null;
             _previewBoard.LoadPositionFromFenString(Board.FEN_START);
         }
         public bool LoadPgn(string pgn)
@@ -171,6 +176,7 @@ namespace ChessUI
                 SetBoardHistoryIndex(index);
             };
             _moveHistoryGrid.Children.Add(button);
+            _historyButtons.Add(button);
 
             Grid.SetRow(button, _moveHistoryGrid.RowDefinitions.Count - 1);
             Grid.SetColumn(button, column);
@@ -253,9 +259,20 @@ namespace ChessUI
         private void SetBoardHistoryIndex(int index)
         {
             if (!IsMoveHistoryValid()) return;
+
             _boardViewIndex = index;
             _boardViewIndex = Math.Clamp(_boardViewIndex, 0, _moveHistory.Count - 1);
             _previewBoard.LoadPositionFromFenString(_moveHistory[_boardViewIndex].Fen);
+            
+            if (_selectedHistoryButton != null)
+            {
+                _selectedHistoryButton.IsEnabled = true;
+            }
+            if (_boardViewIndex > 0)
+            {
+                _selectedHistoryButton = _historyButtons[_boardViewIndex - 1];
+                _selectedHistoryButton.IsEnabled = false;
+            }
         }
         private bool IsViewingCurrentBoard()
         {
