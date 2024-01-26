@@ -29,8 +29,17 @@
 
         <!--Column 1-->
         <Grid Grid.Column="1">
+            <TextBlock  x:Name="VersionTextBlock" 
+                        Text="Schahawats v1.0 - Created by Filip Smolčec" 
+                        Foreground="White"
+                        Opacity="0.25"
+                        FontSize="12"
+                        HorizontalAlignment="Center" 
+                        VerticalAlignment="Bottom"
+                        Margin="0,0,0,3"/>
+
             <!--Main Menu-->
-            <StackPanel Visibility="Collapsed" x:Name="MainMenu">
+            <StackPanel x:Name="MainMenu">
                 <Button x:Name="NewGameButton" Content="NEW GAME" Click="NewGameButton_Clicked"/>
                 <Button x:Name="LoadPgnButton" Content="LOAD PGN" Click="LoadPgnButton_Click"/>
             </StackPanel>

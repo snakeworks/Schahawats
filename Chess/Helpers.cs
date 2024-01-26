@@ -71,6 +71,8 @@
 
         public static string GetBoardHistoryAsPgnExport(this List<BoardRecord> history, string siteTitle = "Schahawats")
         {
+            if (history.Count <= 1) return null;
+
             string date = DateTime.Now.ToString("yyyy.MM.dd");
 
             MatchResult result;

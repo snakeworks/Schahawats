@@ -112,6 +112,9 @@ namespace ChessUI
         {
             if (menu == null) return;
 
+            if (menu == MainMenu) VersionTextBlock.Visibility = Visibility.Visible;
+            else VersionTextBlock.Visibility = Visibility.Collapsed;
+
             if (_activeMenu != null) _activeMenu.Visibility = Visibility.Collapsed;
 
             _activeMenu = menu;
