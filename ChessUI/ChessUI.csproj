@@ -6,6 +6,7 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +25,7 @@
     <None Remove="Assets\Queen_W.png" />
     <None Remove="Assets\Rook_B.png" />
     <None Remove="Assets\Rook_W.png" />
+    <None Remove="Icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,6 +48,7 @@
     <Resource Include="Assets\Board\Rook_B.png" />
     <Resource Include="Assets\Board\Rook_W.png" />
     <Resource Include="Assets\Icons\FlipIcon.png" />
+    <Resource Include="Icon.ico" />
   </ItemGroup>
 
 </Project>
