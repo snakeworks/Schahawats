@@ -120,5 +120,18 @@ namespace ChessUI
             _activeMenu = menu;
             _activeMenu.Visibility = Visibility.Visible;
         }
+
+        private void PreviewBoardNext_Click(object sender, RoutedEventArgs e)
+        {
+            _boardHandler.DisplayNextBoardInHistory();
+        }
+        private void PreviewBoardPrevious_Click(object sender, RoutedEventArgs e)
+        {
+            _boardHandler.DisplayPreviousBoardInHistory();
+        }
+        private void FlipButton_Click(object sender, RoutedEventArgs e)
+        {
+            _boardHandler.FlipPerspective();
+        }
     }
 }

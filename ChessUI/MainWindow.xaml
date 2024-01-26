@@ -18,7 +18,7 @@
         </Grid.ColumnDefinitions>
 
         <!--Column 0 Board-->
-        <Image x:Name="BoardGrid" Source="Assets/Board.png" Grid.Column="0"/>
+        <Image x:Name="BoardGrid" Source="Assets/Board/Board.png" Grid.Column="0"/>
         <UniformGrid x:Name="HighlightGrid" Rows="8" Columns="8" 
                      RenderOptions.BitmapScalingMode="HighQuality"
                      Grid.Column="0">
@@ -73,8 +73,13 @@
                 </ScrollViewer>
 
                 <StackPanel Grid.Row="2" Orientation="Horizontal">
-                    <Button Content="◀" Width="30"/>
-                    <Button Content="▶" Width="30"/>
+                    <Button x:Name="FlipButton" Width="40" Click="FlipButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Assets/Icons/FlipIcon.png" Width="30" Height="30"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="PreviewBoardPreviousButton" Content="◀" Width="40" Click="PreviewBoardPrevious_Click"/>
+                    <Button x:Name="PreviewBoardNextButton" Content="▶" Width="40" Click="PreviewBoardNext_Click"/>
                     <Button x:Name="EndGameButton" Content="END GAME" Click="EndGameButton_Click"/>
                     <Button x:Name="SavePgnButton" Content="SAVE PGN" IsEnabled="False" Click="SavePgnButton_Click"/>
                 </StackPanel>

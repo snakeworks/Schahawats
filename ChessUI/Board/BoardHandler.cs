@@ -243,11 +243,15 @@ namespace ChessUI
             }
             else if (e.Key == Key.F1)
             {
-                _perspective = _perspective.GetOpponent();
-                DrawBoard(ActiveBoard);
+                FlipPerspective();
             }
         }
 
+        public void FlipPerspective()
+        {
+            _perspective = _perspective.GetOpponent();
+            DrawBoard(ActiveBoard);
+        }
         public void DisplayNextBoardInHistory()
         {
             SetBoardHistoryIndex(_boardViewIndex+1);
