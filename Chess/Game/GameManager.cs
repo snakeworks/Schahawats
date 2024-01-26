@@ -44,7 +44,7 @@
             if (CurrentBoard == null) return;
 
             LastMatchResult = result;
-            LastPgnString = CurrentBoard.BoardHistory.GetBoardHistoryAsPgnExport(result);
+            LastPgnString = CurrentBoard.BoardHistory.GetBoardHistoryAsPgnExport();
             
             GameEnded?.Invoke();
 

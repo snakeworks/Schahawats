@@ -69,9 +69,21 @@
             return false;
         }
 
-        public static string GetBoardHistoryAsPgnExport(this List<BoardRecord> history, MatchResult result, string siteTitle = "Schahawats")
+        public static string GetBoardHistoryAsPgnExport(this List<BoardRecord> history, string siteTitle = "Schahawats")
         {
             string date = DateTime.Now.ToString("yyyy.MM.dd");
+
+            MatchResult result;
+
+            if (history[history.Count - 1].Pgn.Trim().EndsWith("#"))
+            {
+                if (history.Count % 2 == 0) result = MatchResult.WhiteWins;
+                else result = MatchResult.BlackWins;
+            }
+            else
+            {
+                result = MatchResult.ForcefullyEnded;
+            }
 
             string whiteResult = result == MatchResult.WhiteWins ? "1" : "0";
             whiteResult = result.IsDraw() ? "1/2" : whiteResult;
