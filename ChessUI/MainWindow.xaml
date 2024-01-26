@@ -8,6 +8,7 @@
         Title="Schahawats" Height="720" Width="1000"
         WindowStartupLocation="CenterScreen"
         Background="#302E2B"
+        Icon="Assets/Icon.png"
         PreviewKeyDown="Window_PreviewKeyDown">
 
     <Grid MouseDown="Grid_MouseDown">
@@ -39,7 +40,7 @@
                         Margin="0,0,0,3"/>
 
             <!--Main Menu-->
-            <StackPanel x:Name="MainMenu">
+            <StackPanel x:Name="MainMenu" Margin="20,20,20,20">
                 <Button x:Name="NewGameButton" Content="NEW GAME" Click="NewGameButton_Clicked"/>
                 <Button x:Name="LoadPgnButton" Content="LOAD PGN" Click="LoadPgnButton_Click"/>
             </StackPanel>
