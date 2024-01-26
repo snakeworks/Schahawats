@@ -250,13 +250,13 @@ namespace Chess
             List<int> rowsFound = new();
             List<int> colsFound = new();
 
-            if (moveInPgn == "O-O")
+            if (moveInPgn.Trim('#').Trim('+') == "O-O")
             {
                 pieceTypeMoved = PieceType.King;
                 rowsFound.Add(pieceColor == PlayerColor.White ? 7 : 0);
                 colsFound.Add(6);
             }
-            else if (moveInPgn == "O-O-O")
+            else if (moveInPgn.Trim('#').Trim('+') == "O-O-O")
             {
                 pieceTypeMoved = PieceType.King;
                 rowsFound.Add(pieceColor == PlayerColor.White ? 7 : 0);
