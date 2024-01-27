@@ -38,27 +38,37 @@
                         HorizontalAlignment="Center" 
                         VerticalAlignment="Bottom"
                         Margin="0,0,0,3"/>
+            <Button x:Name="BackButton" 
+                    Content="BACK"
+                    Click="BackButton_Click"
+                    HorizontalAlignment="Right" 
+                    VerticalAlignment="Top"/>
 
             <!--Main Menu-->
             <StackPanel x:Name="MainMenu" Margin="20,20,20,20">
                 <Button x:Name="NewGameButton" Content="NEW GAME" Click="NewGameButton_Clicked"/>
+                <TextBlock Height="10"/>
                 <Button x:Name="LoadPgnButton" Content="LOAD PGN" Click="LoadPgnButton_Click"/>
+                <Button x:Name="ExploreGamesButton" Content="EXPLORE GAMES" Click="ExploreGamesButton_Click"/>
+            </StackPanel>
+
+            <!--Game Explorer Menu-->
+            <StackPanel Visibility="Collapsed" x:Name="GameExplorerMenu" Margin="20,20,20,20">
             </StackPanel>
 
             <!--Board History Menu-->
-            <Grid Visibility="Collapsed" x:Name="BoardHistoryMenu" Grid.Row="1">
+            <Grid Visibility="Collapsed" x:Name="BoardHistoryMenu" Grid.Row="1" Margin="0, 25, 0, 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <StackPanel Orientation="Horizontal">
-                    <Button x:Name="BackToMainMenuButton" Content="BACK" Click="BackToMainMenuButton_Click"/>
+                <!--<StackPanel Orientation="Horizontal">
                     <TextBlock Foreground="White" Grid.Row="0">
                         MOVE HISTORY
                     </TextBlock>
-                </StackPanel>
+                </StackPanel>-->
                 
                 <ScrollViewer Grid.Row="1">
                     <StackPanel>

@@ -25,12 +25,16 @@
     <None Remove="Assets\Queen_W.png" />
     <None Remove="Assets\Rook_B.png" />
     <None Remove="Assets\Rook_W.png" />
+    <None Remove="GamesDatabase.db" />
     <None Remove="Icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.15" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.15" />
+    <Content Include="GamesDatabase.db" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
   </ItemGroup>
 
   <ItemGroup>

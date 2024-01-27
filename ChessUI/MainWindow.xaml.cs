@@ -96,7 +96,7 @@ namespace ChessUI
         {
             GameManager.EndGame(MatchResult.ForcefullyEnded);
         }
-        private void BackToMainMenuButton_Click(object sender, RoutedEventArgs e)
+        private void BackButton_Click(object sender, RoutedEventArgs e)
         {
             GameManager.EndGame(MatchResult.ForcefullyEnded);
             OpenMenu(MainMenu);
@@ -112,8 +112,16 @@ namespace ChessUI
         {
             if (menu == null) return;
 
-            if (menu == MainMenu) VersionTextBlock.Visibility = Visibility.Visible;
-            else VersionTextBlock.Visibility = Visibility.Collapsed;
+            if (menu == MainMenu)
+            {
+                BackButton.Visibility = Visibility.Collapsed;
+                VersionTextBlock.Visibility = Visibility.Visible;
+            }
+            else 
+            {
+                BackButton.Visibility = Visibility.Visible;
+                VersionTextBlock.Visibility = Visibility.Collapsed;
+            } 
 
             if (_activeMenu != null) _activeMenu.Visibility = Visibility.Collapsed;
 
@@ -132,6 +140,11 @@ namespace ChessUI
         private void FlipButton_Click(object sender, RoutedEventArgs e)
         {
             _boardHandler.FlipPerspective();
+        }
+
+        private void ExploreGamesButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenMenu(GameExplorerMenu);
         }
     }
 }
