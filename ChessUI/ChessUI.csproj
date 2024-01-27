@@ -30,7 +30,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="GamesDatabase.db" />
+    <Content Include="GamesDatabase.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
