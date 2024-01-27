@@ -6,6 +6,7 @@ namespace ChessUI
     {
         private const string DATA_SOURCE = "GamesDatabase.db";
         private const string CONNECTION = $"Data Source={DATA_SOURCE};Version=3;";
+        private const string TABLE_NAME = "Games";
 
         private static ChessGame CreateChessGame(SQLiteDataReader reader)
         {
@@ -19,34 +20,14 @@ namespace ChessUI
             };
         }
 
-        public static ChessGame GetGame(int index)
-        {
-            string query = $"SELECT * FROM Games WHERE Id = {index}";
-
-            using SQLiteConnection connection = new(CONNECTION);
-            connection.Open();
-
-            using (SQLiteCommand command = new(query, connection))
-            {
-                using SQLiteDataReader reader = command.ExecuteReader();
-                if (reader.HasRows)
-                {
-                    if (reader.Read())
-                    {
-                        var game = CreateChessGame(reader);
-                        connection.Close();
-                        return game;
-                    }
-                }
-            }
-
-            connection.Close();
-
-            return null;
-        }
         public static IEnumerable<ChessGame> GetAllGames()
         {
-            string query = "SELECT * FROM Games";
+            if (!System.IO.File.Exists(DATA_SOURCE) || !TableExists())
+            {
+                yield break;
+            }
+
+            string query = $"SELECT * FROM {TABLE_NAME}";
 
             using SQLiteConnection connection = new(CONNECTION);
             connection.Open();
@@ -69,6 +50,16 @@ namespace ChessUI
         {
             string[] split = dateString.Split('.');
             return new(int.Parse(split[0]), int.Parse(split[1]), int.Parse(split[2]));
+        }
+        private static bool TableExists()
+        {
+            using SQLiteConnection connection = new(CONNECTION);
+            connection.Open();
+
+            using SQLiteCommand command = new($"SELECT name FROM sqlite_master WHERE type='table' AND name='{TABLE_NAME}'", connection);
+            
+            object result = command.ExecuteScalar();
+            return result != null;
         }
     }
 }

@@ -147,6 +147,10 @@ namespace ChessUI
         private void CreateAllButtonsForGamesFromDatabase()
         {
             GameExplorerPanel.Children.Clear();
+            var allGames = DatabaseHandler.GetAllGames();
+
+            if (allGames == null || !allGames.Any()) return;
+
             foreach (var game in DatabaseHandler.GetAllGames())
             {
                 string title = $"{game.WhiteName.Trim() } vs {game.BlackName.Trim()}";
