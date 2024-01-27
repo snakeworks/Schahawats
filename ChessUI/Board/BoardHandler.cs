@@ -39,7 +39,7 @@ namespace ChessUI
         {
             get
             {
-                if (IsViewingCurrentBoard() && GameManager.CurrentBoard != null) return GameManager.CurrentBoard;
+                if (GameManager.CurrentBoard != null && IsViewingCurrentBoard()) return GameManager.CurrentBoard;
                 else return _previewBoard;
             }
         }
