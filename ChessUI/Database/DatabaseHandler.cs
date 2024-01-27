@@ -1,5 +1,4 @@
 ﻿using System.Data.SQLite;
-using System.Diagnostics;
 
 namespace ChessUI
 {
@@ -8,7 +7,44 @@ namespace ChessUI
         private const string DATA_SOURCE = "GamesDatabase.db";
         private const string CONNECTION = $"Data Source={DATA_SOURCE};Version=3;";
 
-        public static void GetAllGames()
+        private static ChessGame CreateChessGame(SQLiteDataReader reader)
+        {
+            return new()
+            {
+                Id = reader.GetInt32(0),
+                Date = GetDateFromString(reader.GetString(1)),
+                WhiteName = reader.GetString(2),
+                BlackName = reader.GetString(3),
+                FullPgn = reader.GetString(4)
+            };
+        }
+
+        public static ChessGame GetGame(int index)
+        {
+            string query = $"SELECT * FROM Games WHERE Id = {index}";
+
+            using SQLiteConnection connection = new(CONNECTION);
+            connection.Open();
+
+            using (SQLiteCommand command = new(query, connection))
+            {
+                using SQLiteDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    if (reader.Read())
+                    {
+                        var game = CreateChessGame(reader);
+                        connection.Close();
+                        return game;
+                    }
+                }
+            }
+
+            connection.Close();
+
+            return null;
+        }
+        public static IEnumerable<ChessGame> GetAllGames()
         {
             string query = "SELECT * FROM Games";
 
@@ -22,20 +58,17 @@ namespace ChessUI
                 {
                     while (reader.Read())
                     {
-                        for (int i = 0; i < reader.FieldCount; i++)
-                        {
-                            Debug.WriteLine(reader.GetName(i) + ": " + reader.GetValue(i));
-                        }
-                        Debug.WriteLine("");
+                        yield return CreateChessGame(reader);
                     }
-                }
-                else
-                {
-                    Debug.WriteLine("No rows found.");
                 }
             }
 
             connection.Close();
+        }
+        private static DateOnly GetDateFromString(string dateString)
+        {
+            string[] split = dateString.Split('.');
+            return new(int.Parse(split[0]), int.Parse(split[1]), int.Parse(split[2]));
         }
     }
 }

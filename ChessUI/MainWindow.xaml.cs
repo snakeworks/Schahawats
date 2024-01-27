@@ -1,8 +1,11 @@
 ﻿using Chess;
 using Microsoft.Win32;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace ChessUI
 {
@@ -10,13 +13,15 @@ namespace ChessUI
     {
         private UIElement _activeMenu;
 
-        private BoardHandler _boardHandler;
+        private readonly BoardHandler _boardHandler;
 
         public MainWindow()
         {
             InitializeComponent();
             _boardHandler = new(BoardGrid, PieceGrid, HighlightGrid, BoardHistoryGrid);
             GameManager.GameEnded += OnGameEnded;
+
+            CreateAllButtonsForGamesFromDatabase();
 
             OpenMenu(MainMenu);
         }
@@ -76,19 +81,22 @@ namespace ChessUI
                 using StreamReader reader = new(path);   
                 string pgn = reader.ReadToEnd();
 
-                bool pgnResult = _boardHandler.LoadPgn(pgn);
+                OpenPgn(pgn);
+            }
+        }
+        private void OpenPgn(string pgn)
+        {
+            bool pgnResult = _boardHandler.LoadPgn(pgn);
 
-                
-                if (pgnResult == true)
-                {
-                    EndGameButton.Visibility = Visibility.Collapsed;
-                    SavePgnButton.Visibility = Visibility.Collapsed;
-                    OpenMenu(BoardHistoryMenu);
-                }
-                else
-                {
-                    MessageBox.Show("The PGN of the game is invalid.", "Load PGN", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+            if (pgnResult == true)
+            {
+                EndGameButton.Visibility = Visibility.Collapsed;
+                SavePgnButton.Visibility = Visibility.Collapsed;
+                OpenMenu(BoardHistoryMenu);
+            }
+            else
+            {
+                MessageBox.Show("The PGN of the game is invalid.", "Load PGN", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -127,6 +135,23 @@ namespace ChessUI
 
             _activeMenu = menu;
             _activeMenu.Visibility = Visibility.Visible;
+        }
+
+        private void CreateAllButtonsForGamesFromDatabase()
+        {
+            GameExplorerMenu.Children.Clear();
+            foreach (var game in DatabaseHandler.GetAllGames())
+            {
+                Button button = new()
+                {
+                    Content = $"{game.WhiteName.Trim()} vs {game.BlackName.Trim()} ({game.Date})"
+                };
+                button.Click += (s, e) =>
+                {
+                    OpenPgn(game.FullPgn);
+                };
+                GameExplorerMenu.Children.Add(button);
+            }
         }
 
         private void PreviewBoardNext_Click(object sender, RoutedEventArgs e)
