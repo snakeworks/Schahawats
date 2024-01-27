@@ -46,6 +46,8 @@ namespace ChessUI
 
             GameManager.StartGame();
 
+            SetGameTitle("LIVE GAME");
+
             OpenMenu(BoardHistoryMenu);
         }
         private void SavePgnButton_Click(object sender, RoutedEventArgs e)
@@ -81,12 +83,13 @@ namespace ChessUI
                 using StreamReader reader = new(path);   
                 string pgn = reader.ReadToEnd();
 
-                OpenPgn(pgn);
+                OpenGameBoardWithPgn(pgn, "PGN GAME");
             }
         }
-        private void OpenPgn(string pgn)
+        private void OpenGameBoardWithPgn(string pgn, string title = "")
         {
             bool pgnResult = _boardHandler.LoadPgn(pgn);
+            SetGameTitle(title);
 
             if (pgnResult == true)
             {
@@ -98,6 +101,10 @@ namespace ChessUI
             {
                 MessageBox.Show("The PGN of the game is invalid.", "Load PGN", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+        private void SetGameTitle(string title)
+        {
+            GameTitleTextBlock.Text = title;
         }
 
         private void EndGameButton_Click(object sender, RoutedEventArgs e)
@@ -139,18 +146,21 @@ namespace ChessUI
 
         private void CreateAllButtonsForGamesFromDatabase()
         {
-            GameExplorerMenu.Children.Clear();
+            GameExplorerPanel.Children.Clear();
             foreach (var game in DatabaseHandler.GetAllGames())
             {
+                string title = $"{game.WhiteName.Trim() } vs {game.BlackName.Trim()}";
                 Button button = new()
                 {
-                    Content = $"{game.WhiteName.Trim()} vs {game.BlackName.Trim()} ({game.Date})"
+                    Content = $"{title}\n({game.Date})",
+                    Height = 42,
+                    HorizontalContentAlignment = HorizontalAlignment.Left,
                 };
                 button.Click += (s, e) =>
                 {
-                    OpenPgn(game.FullPgn);
+                    OpenGameBoardWithPgn(game.FullPgn, title);
                 };
-                GameExplorerMenu.Children.Add(button);
+                GameExplorerPanel.Children.Add(button);
             }
         }
 

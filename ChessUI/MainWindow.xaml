@@ -45,7 +45,7 @@
                     VerticalAlignment="Top"/>
 
             <!--Main Menu-->
-            <StackPanel x:Name="MainMenu" Margin="20,20,20,20">
+            <StackPanel Visibility="Collapsed" x:Name="MainMenu" Margin="20,20,20,20">
                 <Button x:Name="NewGameButton" Content="NEW GAME" Click="NewGameButton_Clicked"/>
                 <TextBlock Height="10"/>
                 <Button x:Name="LoadPgnButton" Content="LOAD PGN" Click="LoadPgnButton_Click"/>
@@ -53,8 +53,10 @@
             </StackPanel>
 
             <!--Game Explorer Menu-->
-            <StackPanel Visibility="Collapsed" x:Name="GameExplorerMenu" Margin="20,20,20,20">
-            </StackPanel>
+            <ScrollViewer Visibility="Collapsed" x:Name="GameExplorerMenu" Grid.Row="1" Margin="10,25,10,10">
+                <StackPanel x:Name="GameExplorerPanel">
+                </StackPanel>
+            </ScrollViewer>
 
             <!--Board History Menu-->
             <Grid Visibility="Collapsed" x:Name="BoardHistoryMenu" Grid.Row="1" Margin="0, 25, 0, 0">
@@ -64,11 +66,14 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!--<StackPanel Orientation="Horizontal">
-                    <TextBlock Foreground="White" Grid.Row="0">
-                        MOVE HISTORY
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="GameTitleTextBlock" 
+                               Foreground="White" 
+                               Grid.Row="0"
+                               Margin="10, 0, 0, 10">
+                        GAME
                     </TextBlock>
-                </StackPanel>-->
+                </StackPanel>
                 
                 <ScrollViewer Grid.Row="1">
                     <StackPanel>
