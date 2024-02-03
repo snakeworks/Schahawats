@@ -18,7 +18,7 @@
         </Grid.ColumnDefinitions>
 
         <!--Column 0 Board-->
-        <Image x:Name="BoardGrid" Source="Assets/Board/Board.png" Grid.Column="0"/>
+        <Image x:Name="BoardGrid" Source="Assets/Board/Board_W.png" Grid.Column="0"/>
         <UniformGrid x:Name="HighlightGrid" Rows="8" Columns="8" 
                      RenderOptions.BitmapScalingMode="HighQuality"
                      Grid.Column="0">

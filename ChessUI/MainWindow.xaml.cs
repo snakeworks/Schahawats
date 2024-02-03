@@ -44,7 +44,7 @@ namespace ChessUI
 
             GameManager.StartGame();
 
-            SetGameTitle("LIVE GAME");
+            SetGameTitle("LOCAL GAME");
 
             OpenMenu(BoardHistoryMenu);
         }

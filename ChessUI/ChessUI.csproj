@@ -13,6 +13,8 @@
     <None Remove="Assets\Bishop_B.png" />
     <None Remove="Assets\Bishop_W.png" />
     <None Remove="Assets\Board.png" />
+    <None Remove="Assets\Board\Board_B.png" />
+    <None Remove="Assets\Board\Board_W.png" />
     <None Remove="Assets\Icon.png" />
     <None Remove="Assets\Icons\FlipIcon.png" />
     <None Remove="Assets\King_B.png" />
@@ -46,7 +48,8 @@
   <ItemGroup>
     <Resource Include="Assets\Board\Bishop_B.png" />
     <Resource Include="Assets\Board\Bishop_W.png" />
-    <Resource Include="Assets\Board\Board.png" />
+    <Resource Include="Assets\Board\Board_B.png" />
+    <Resource Include="Assets\Board\Board_W.png" />
     <Resource Include="Assets\Icon.png" />
     <Resource Include="Assets\Board\King_B.png" />
     <Resource Include="Assets\Board\King_W.png" />

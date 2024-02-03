@@ -135,7 +135,7 @@ namespace ChessUI
                 for (int j = 0; j < Board.MAX_COLUMN; j++)
                 {
                     Position pos = GetPositionBasedOnPerspective(i, j);
-                    _pieceImages[pos.Row, pos.Column].Source = PieceImages.GetPieceImage(board[i, j]);
+                    _pieceImages[pos.Row, pos.Column].Source = BoardHelpers.GetPieceImage(board[i, j]);
                 }
             }
 
@@ -250,6 +250,7 @@ namespace ChessUI
         public void FlipPerspective()
         {
             _perspective = _perspective.GetOpponent();
+            _boardImage.Source = BoardHelpers.GetBoardImage(_perspective);
             DrawBoard(ActiveBoard);
         }
         public void DisplayNextBoardInHistory()
