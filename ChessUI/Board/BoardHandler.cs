@@ -169,7 +169,7 @@ namespace ChessUI
             Button button = new()
             {
                 Focusable = false,
-                Content = _moveHistory[index].Pgn
+                Content = _moveHistory[index].MoveInAlgebraicNotation
             };
             button.Click += (s, e) =>
             {

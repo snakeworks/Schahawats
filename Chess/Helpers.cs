@@ -77,7 +77,7 @@
 
             MatchResult result;
 
-            if (history[history.Count - 1].Pgn.Trim().EndsWith("#"))
+            if (history[history.Count - 1].MoveInAlgebraicNotation.Trim().EndsWith("#"))
             {
                 if (history.Count % 2 == 0) result = MatchResult.WhiteWins;
                 else result = MatchResult.BlackWins;
@@ -100,7 +100,7 @@
             int lineCount = 0;
             foreach (var record in history)
             {
-                if (string.IsNullOrEmpty(record.Pgn)) continue;
+                if (string.IsNullOrEmpty(record.MoveInAlgebraicNotation)) continue;
                 
                 if (realCount % 2 == 0)
                 {
@@ -108,7 +108,7 @@
                     export += $"{lineCount}.";
                 }
 
-                export += $"{record.Pgn} ";
+                export += $"{record.MoveInAlgebraicNotation} ";
 
                 newLineCount++;
                 realCount++;

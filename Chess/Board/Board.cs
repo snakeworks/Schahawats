@@ -198,7 +198,7 @@ namespace Chess
                 BoardUpdated?.Invoke();
             }
         }
-        public bool MakeMove(string moveInPgn, PlayerColor pieceColor)
+        public bool MakeMove(string moveInAlgebraicNotation, PlayerColor pieceColor)
         {
             bool IsFile(char c)
             {
@@ -250,13 +250,13 @@ namespace Chess
             List<int> rowsFound = new();
             List<int> colsFound = new();
 
-            if (moveInPgn.Trim('#').Trim('+') == "O-O")
+            if (moveInAlgebraicNotation.Trim('#').Trim('+') == "O-O")
             {
                 pieceTypeMoved = PieceType.King;
                 rowsFound.Add(pieceColor == PlayerColor.White ? 7 : 0);
                 colsFound.Add(6);
             }
-            else if (moveInPgn.Trim('#').Trim('+') == "O-O-O")
+            else if (moveInAlgebraicNotation.Trim('#').Trim('+') == "O-O-O")
             {
                 pieceTypeMoved = PieceType.King;
                 rowsFound.Add(pieceColor == PlayerColor.White ? 7 : 0);
@@ -264,11 +264,11 @@ namespace Chess
             }
             else
             {
-                foreach (var character in moveInPgn)
+                foreach (var character in moveInAlgebraicNotation)
                 {
                     if (Piece.IsPgnPieceSymbol(character))
                     {
-                        if (moveInPgn[0] == character)
+                        if (moveInAlgebraicNotation[0] == character)
                         {
                             pieceTypeMoved = Piece.GetPieceTypeBySymbol(character);
                         }
