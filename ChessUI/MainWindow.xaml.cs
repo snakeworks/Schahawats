@@ -158,6 +158,7 @@ namespace ChessUI
 
             foreach (var game in DatabaseHandler.GetAllGames())
             {
+                int id = game.Id;
                 string title = $"{game.WhiteName.Trim() } vs {game.BlackName.Trim()}";
                 Button button = new()
                 {
@@ -167,7 +168,9 @@ namespace ChessUI
                 };
                 button.Click += (s, e) =>
                 {
-                    OpenGameBoardWithPgn(game.FullPgn, title);
+                    var gameFromId = DatabaseHandler.GetGame(id);
+                    if (gameFromId == null) return;
+                    OpenGameBoardWithPgn(gameFromId.FullPgn, title);
                 };
                 GameExplorerPanel.Children.Add(button);
             }

@@ -20,6 +20,34 @@ namespace ChessUI
             };
         }
 
+        public static ChessGame GetGame(int id)
+        {
+            if (!System.IO.File.Exists(DATA_SOURCE) || !TableExists())
+            {
+                return null;
+            }
+
+            string query = $"SELECT * FROM {TABLE_NAME} WHERE Id = {id}";
+
+            using SQLiteConnection connection = new(CONNECTION);
+            connection.Open();
+
+            using (SQLiteCommand command = new(query, connection))
+            {
+                using SQLiteDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        return CreateChessGame(reader);
+                    }
+                }
+            }
+
+            connection.Close();
+
+            return null;
+        }
         public static IEnumerable<ChessGame> GetAllGames()
         {
             if (!System.IO.File.Exists(DATA_SOURCE) || !TableExists())
