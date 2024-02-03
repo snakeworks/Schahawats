@@ -111,6 +111,13 @@ namespace ChessUI
         }
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
+            if (GameManager.CurrentBoard != null)
+            {
+                var result = MessageBox.Show("Returning to the main menu will cancel the current game. Continue?", "Cancel Game", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                if (result != MessageBoxResult.Yes) return;
+            }
+
             GameManager.EndGame(MatchResult.ForcefullyEnded);
             OpenMenu(MainMenu);
             _boardHandler.ResetBoard();
