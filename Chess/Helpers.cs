@@ -8,7 +8,7 @@
             {
                 PlayerColor.White => PlayerColor.Black,
                 PlayerColor.Black => PlayerColor.White,
-                _ => PlayerColor.None,
+                _ => PlayerColor.White
             };
         }
         public static bool IsDraw(this MatchResult result)
