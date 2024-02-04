@@ -156,10 +156,10 @@ namespace ChessUI
 
             if (allGames == null || !allGames.Any()) return;
 
-            foreach (var game in DatabaseHandler.GetAllGames())
+            foreach (var game in allGames)
             {
                 int id = game.Id;
-                string title = $"{game.WhiteName.Trim() } vs {game.BlackName.Trim()}";
+                string title = $"{game.WhiteName.Trim()} vs {game.BlackName.Trim()}";
                 Button button = new()
                 {
                     Content = $"{title}\n({game.Date})",
