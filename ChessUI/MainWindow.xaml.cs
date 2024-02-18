@@ -36,17 +36,26 @@ namespace ChessUI
 
         private void NewGameButton_Clicked(object sender, RoutedEventArgs e)
         {
+            OpenMenu(NewGameMenu);
+        }
+        private void HumanVsHumanButton_Click(object sender, RoutedEventArgs e)
+        {
+            GameManager.StartGame();
+            OnNewGameStarted();
+        }
+        private void HumanVsBotButton_Click(object sender, RoutedEventArgs e)
+        {
+            GameManager.StartGame(new HumanPlayer(), new StockfishPlayer(int.Parse(BotDepthSlider.Value.ToString()), int.Parse(BotLevelSlider.Value.ToString())));
+            OnNewGameStarted();
+        }
+        private void OnNewGameStarted()
+        {
+            SetGameTitle("LOCAL GAME");
+            OpenMenu(BoardHistoryMenu);
             SavePgnButton.IsEnabled = false;
             EndGameButton.IsEnabled = true;
-
             EndGameButton.Visibility = Visibility.Visible;
             SavePgnButton.Visibility = Visibility.Visible;
-
-            GameManager.StartGame();
-
-            SetGameTitle("LOCAL GAME");
-
-            OpenMenu(BoardHistoryMenu);
         }
         private void SavePgnButton_Click(object sender, RoutedEventArgs e)
         {
@@ -193,5 +202,6 @@ namespace ChessUI
         {
             OpenMenu(GameExplorerMenu);
         }
+
     }
 }

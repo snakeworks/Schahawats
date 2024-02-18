@@ -205,44 +205,6 @@ namespace Chess
                 return c == 'a' || c == 'b' || c == 'c' || c == 'd' || c == 'e' ||
                        c == 'f' || c == 'g' || c == 'h';
             }
-            Move GetMove(PieceType type, PlayerColor color, Position targetPos, int overrideRow = -1, int overrideCol = -1)
-            {
-                Move move;
-                for (int i = 0; i < MAX_ROW; i++)
-                {
-                    for (int j = 0; j < MAX_COLUMN; j++)
-                    {
-                        if (_pieces[i, j] != null && _pieces[i, j].Type == type && _pieces[i, j].Color == color)
-                        {
-                            if (overrideRow != -1 && i != overrideRow) continue;
-                            if (overrideCol != -1 && j != overrideCol) continue;
-
-                            move = _pieces[i, j].GetLegalMoves(new(i, j), this).GetMoveByTargetPosition(targetPos);
-                            if (move != null) return move;
-                        }
-                    }
-                }
-                return null;
-            }
-            Move GetMoveByFlag(PieceType type, PlayerColor color, Position targetPos, MoveFlags flag, int overrideRow = -1, int overrideCol = -1)
-            {
-                Move move;
-                for (int i = 0; i < MAX_ROW; i++)
-                {
-                    for (int j = 0; j < MAX_COLUMN; j++)
-                    {
-                        if (_pieces[i, j] != null && _pieces[i, j].Type == type && _pieces[i, j].Color == color)
-                        {
-                            if (overrideRow != -1 && i != overrideRow) continue;
-                            if (overrideCol != -1 && j != overrideCol) continue;
-
-                            move = _pieces[i, j].GetLegalMoves(new(i, j), this).GetMoveByTargetPosition(targetPos, flag);
-                            if (move != null) return move;
-                        }
-                    }
-                }
-                return null;
-            }
 
             PieceType pieceTypeMoved = PieceType.Pawn;
             PieceType pieceTypePromoted = PieceType.Pawn;
@@ -314,7 +276,65 @@ namespace Chess
 
             return true;
         }
+        public Move GetMoveFromLongNotation(string moveInLongNotation)
+        {
+            if (moveInLongNotation.Length < 4) return null;
+
+            string startSquare = $"{moveInLongNotation[0]}{moveInLongNotation[1]}";
+            string targetSquare = $"{moveInLongNotation[2]}{moveInLongNotation[3]}";
+
+            Position startPos = new(MAX_ROW - int.Parse(moveInLongNotation[1].ToString()), _fileSymbols.FirstOrDefault(x => x.Value == moveInLongNotation[0]).Key);
+            Position targetPos = new(MAX_ROW - int.Parse(moveInLongNotation[3].ToString()), _fileSymbols.FirstOrDefault(x => x.Value == moveInLongNotation[2]).Key);
         
+            if (moveInLongNotation.Length > 4)
+            {
+                return GetMoveByFlag(this[startPos].Type, this[startPos].Color, targetPos,
+                    Piece.GetPieceTypeBySymbol(moveInLongNotation[4]).GetPromotionFlagForPieceType(), startPos.Row, startPos.Column);
+            }
+            else
+            {
+                return GetMove(this[startPos].Type, this[startPos].Color, targetPos, startPos.Row, startPos.Column);
+            }
+        }
+        private Move GetMove(PieceType type, PlayerColor color, Position targetPos, int overrideRow = -1, int overrideCol = -1)
+        {
+            Move move;
+            for (int i = 0; i < MAX_ROW; i++)
+            {
+                for (int j = 0; j < MAX_COLUMN; j++)
+                {
+                    if (_pieces[i, j] != null && _pieces[i, j].Type == type && _pieces[i, j].Color == color)
+                    {
+                        if (overrideRow != -1 && i != overrideRow) continue;
+                        if (overrideCol != -1 && j != overrideCol) continue;
+
+                        move = _pieces[i, j].GetLegalMoves(new(i, j), this).GetMoveByTargetPosition(targetPos);
+                        if (move != null) return move;
+                    }
+                }
+            }
+            return null;
+        }
+        private Move GetMoveByFlag(PieceType type, PlayerColor color, Position targetPos, MoveFlags flag, int overrideRow = -1, int overrideCol = -1)
+        {
+            Move move;
+            for (int i = 0; i < MAX_ROW; i++)
+            {
+                for (int j = 0; j < MAX_COLUMN; j++)
+                {
+                    if (_pieces[i, j] != null && _pieces[i, j].Type == type && _pieces[i, j].Color == color)
+                    {
+                        if (overrideRow != -1 && i != overrideRow) continue;
+                        if (overrideCol != -1 && j != overrideCol) continue;
+
+                        move = _pieces[i, j].GetLegalMoves(new(i, j), this).GetMoveByTargetPosition(targetPos, flag);
+                        if (move != null) return move;
+                    }
+                }
+            }
+            return null;
+        }
+
         public bool IsInCheck(PlayerColor color)
         {
             for (int i = 0; i < MAX_ROW; i++)

@@ -1,4 +1,5 @@
 ﻿using Chess;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -185,6 +186,7 @@ namespace ChessUI
         public void HandleMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (GameManager.CurrentBoard == null) return;
+            if (GameManager.CurrentPlayer != null && !GameManager.CurrentPlayer.IsHuman) return;
 
             Point point = e.GetPosition(_boardImage);
             Position position = GetPositionFromPoint(point);
@@ -203,7 +205,7 @@ namespace ChessUI
         }
         void SelectPosition(Position position)
         {
-            if (!GameManager.CurrentBoard.IsSquareEmpty(position) && GameManager.CurrentBoard[position].Color != GameManager.CurrentPlayer) return;
+            if (!GameManager.CurrentBoard.IsSquareEmpty(position) && GameManager.CurrentBoard[position].Color != GameManager.CurrentPlayerColor) return;
 
             var moves = GameManager.CurrentBoard.GetLegalMovesAtPosition(position);
             if (moves.Any())

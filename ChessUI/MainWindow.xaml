@@ -57,6 +57,47 @@
                 <StackPanel x:Name="GameExplorerPanel">
                 </StackPanel>
             </ScrollViewer>
+            
+            <!--New Game Menu-->
+            <StackPanel Visibility="Collapsed" x:Name="NewGameMenu" Margin="20,20,20,20">
+                <Button x:Name="HumanVsHumanButton" Content="HUMAN VS HUMAN" Click="HumanVsHumanButton_Click"/>
+                <Button x:Name="HumanVsBotButton" Content="HUMAN VS BOT" Click="HumanVsBotButton_Click"/>
+                
+                <TextBlock Height="10"/>
+                
+                <Label DockPanel.Dock="Left" 
+                       Foreground="White">
+                    BOT SETTINGS
+                </Label>
+                <DockPanel VerticalAlignment="Center" Margin="10">
+                    <Label DockPanel.Dock="Left" 
+                           Foreground="White">
+                        Depth:
+                    </Label>
+                    <TextBox Text="{Binding ElementName=BotDepthSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                    <Slider Minimum="1"
+                            Maximum="18"
+                            Value="12"
+                            TickPlacement="BottomRight" 
+                            TickFrequency="1" 
+                            IsSnapToTickEnabled="True" 
+                            Name="BotDepthSlider" />
+                </DockPanel>                
+                <DockPanel VerticalAlignment="Center" Margin="10">
+                    <Label DockPanel.Dock="Left" 
+                           Foreground="White">
+                        Level:
+                    </Label>
+                    <TextBox Text="{Binding ElementName=BotLevelSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                    <Slider Minimum="1"
+                            Maximum="20"
+                            Value="20"
+                            TickPlacement="BottomRight" 
+                            TickFrequency="1" 
+                            IsSnapToTickEnabled="True" 
+                            Name="BotLevelSlider" />
+                </DockPanel>
+            </StackPanel>
 
             <!--Board History Menu-->
             <Grid Visibility="Collapsed" x:Name="BoardHistoryMenu" Grid.Row="1" Margin="0, 25, 0, 0">
